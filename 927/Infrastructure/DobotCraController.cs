@@ -7,6 +7,8 @@ using NModbus;
 using ShoeMoldControl.Core;
 using Serilog;
 using Polly;
+using ShoeMoldControl.Infrastructure.Polly;
+using Polly.CircuitBreaker;
 
 namespace ShoeMoldControl.Infrastructure
 {
@@ -76,7 +78,7 @@ namespace ShoeMoldControl.Infrastructure
             {
                 return await _policyProvider.RobotCommandCircuitBreaker.ExecuteAsync(
                     async (ctx) => await _policyProvider.RobotCommandRetryPolicy.ExecuteAsync(
-                        async () => await ExecuteCommandInternalAsync(command, token),
+                        async (ctx) => await ExecuteCommandInternalAsync(command, token),
                         ctx),
                     new Context("RobotCommand")
                     {

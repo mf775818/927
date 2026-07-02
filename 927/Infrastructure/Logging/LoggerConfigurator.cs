@@ -1,5 +1,7 @@
 using System;
 using Serilog;
+using Serilog.Configuration;
+using Serilog.Core;
 using Serilog.Events;
 
 namespace ShoeMoldControl.Infrastructure.Logging

@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using ShoeMoldControl.Core;
 using Serilog;
 using Polly;
+using ShoeMoldControl.Infrastructure.Polly;
+using Polly.CircuitBreaker;
 
 namespace ShoeMoldControl.Vision
 {
