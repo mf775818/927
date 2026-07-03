@@ -4,10 +4,6 @@
 *.exe
 *.dll
 *.pdb
-*.user
-*.sln.cache
-*.userosscache
-*.suo
 *.userprefs
 
 # Dependencies
@@ -27,8 +23,10 @@ obj/
 .vs/
 .vscode/
 .idea/
-*.swp
-*.swo
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 
 # OS generated files
 .DS_Store
@@ -38,11 +36,12 @@ desktop.ini
 # Testing
 TestResults/
 
-# NuGet Packages
-*.nupkg
-!src/**/packages.config
+# Visual Studio Code
+.vscode/tasks.json
+.vscode/launch.json
 
-# Output directory
-bin/
-obj/
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
 ```

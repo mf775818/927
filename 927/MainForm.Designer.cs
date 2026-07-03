@@ -30,6 +30,7 @@ namespace _927
             _startButton = new Button();
             _stopButton = new Button();
             _textBox = new TextBox();
+            _simulationIndicatorLabel = new Label();
             SuspendLayout();
             // 
             // _statusLabel
@@ -73,6 +74,19 @@ namespace _927
             _textBox.TabIndex = 3;
             _textBox.Text = "TextBox";
             // 
+            // _simulationIndicatorLabel
+            // 
+            _simulationIndicatorLabel.AutoSize = true;
+            _simulationIndicatorLabel.Font = new Font("Microsoft JhengHei UI", 9F, FontStyle.Bold);
+            _simulationIndicatorLabel.Location = new Point(331, 50);
+            _simulationIndicatorLabel.Name = "_simulationIndicatorLabel";
+            _simulationIndicatorLabel.Padding = new Padding(10, 5, 10, 5);
+            _simulationIndicatorLabel.Size = new Size(120, 25);
+            _simulationIndicatorLabel.TabIndex = 4;
+            _simulationIndicatorLabel.Text = "SIMULATION MODE";
+            _simulationIndicatorLabel.BackColor = Color.LightGreen;
+            _simulationIndicatorLabel.Visible = false;
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -82,6 +96,7 @@ namespace _927
             Controls.Add(_startButton);
             Controls.Add(_stopButton);
             Controls.Add(_textBox);
+            Controls.Add(_simulationIndicatorLabel);
             MinimumSize = new Size(600, 400);
             Name = "MainForm";
             StartPosition = FormStartPosition.CenterScreen;
@@ -96,5 +111,6 @@ namespace _927
         private Button _startButton;
         private Button _stopButton;
         private TextBox _textBox;  // 對應原 XAML 中的 _927tbx
+        private Label _simulationIndicatorLabel;  // 模擬模式/連線狀態指示器
     }
 }
