@@ -4,32 +4,45 @@
 *.exe
 *.dll
 *.pdb
+*.user
+*.sln.cache
+*.userosscache
+*.suo
 *.userprefs
-*.cache
-*.log
-*.tmp
 
 # Dependencies
 packages/
-node_modules/
+bin/
+obj/
 
-# IDE specific
+# Logs
+*.log
+
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
 .vs/
 .vscode/
 .idea/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+*.swp
+*.swo
 
-# OS generated
+# OS generated files
 .DS_Store
 Thumbs.db
 desktop.ini
 
+# Testing
+TestResults/
+
+# NuGet Packages
+*.nupkg
+!src/**/packages.config
+
 # Output directory
 bin/
 obj/
-Debug/
-Release/
 ```
