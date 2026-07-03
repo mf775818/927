@@ -1,12 +1,13 @@
 ```
 # Build artifacts
-bin/
-obj/
-*.dll
+*.obj
 *.exe
+*.dll
 *.pdb
-*.nupkg
+*.userprefs
+*.cache
 *.log
+*.tmp
 
 # Dependencies
 packages/
@@ -14,32 +15,21 @@ node_modules/
 
 # IDE specific
 .vs/
+.vscode/
 .idea/
-*.userprefs
 *.user
 *.suo
 *.userosscache
 *.sln.docstates
-
-# Environment specific
-.env
-.env.local
-*.local
-*.user
-appsettings.Development.json
-appsettings.Production.json
 
 # OS generated
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# Test and coverage
-TestResults/
-coverage/
-*.coverage
-
-# Temporary files
-*.tmp
-*~
+# Output directory
+bin/
+obj/
+Debug/
+Release/
 ```

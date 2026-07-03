@@ -3,7 +3,6 @@ using System.ComponentModel;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows.Input;
 using Microsoft.Extensions.DependencyInjection;
 using ShoeMoldControl.Core;
 using Serilog;
@@ -28,8 +27,8 @@ namespace _927.ViewModels
             StopCommand = new RelayCommand(async _ => await Stop(), _ => _workflowTask != null && !_workflowTask.IsCompleted);
         }
 
-        public ICommand StartCommand { get; }
-        public ICommand StopCommand { get; }
+        public RelayCommand StartCommand { get; }
+        public RelayCommand StopCommand { get; }
 
         public string StatusText
         {
@@ -53,6 +52,10 @@ namespace _927.ViewModels
                 _workflowTask = Task.Run(() => workflow.RunProductionCycleAsync(_cancellationToken));
                 StatusText = "Production started";
                 _logger.Information("Production workflow started (VM)");
+                
+                // 通知 Command 狀態改變
+                StartCommand.RaiseCanExecuteChanged();
+                StopCommand.RaiseCanExecuteChanged();
             }
             catch (Exception ex)
             {
@@ -72,6 +75,10 @@ namespace _927.ViewModels
                 }
                 StatusText = "Production stopped";
                 _logger.Information("Production workflow stopped (VM)");
+                
+                // 通知 Command 狀態改變
+                StartCommand.RaiseCanExecuteChanged();
+                StopCommand.RaiseCanExecuteChanged();
             }
             catch (Exception ex)
             {
