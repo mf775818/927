@@ -11,6 +11,8 @@ namespace _927.ViewModels
 {
     public class MainWindowViewModel : INotifyPropertyChanged
     {
+        public RelayCommand StartCommand { get; }
+        public RelayCommand StopCommand { get; }
         private readonly IServiceProvider _serviceProvider;
         private readonly CancellationToken _cancellationToken;
         private readonly ILogger _logger;
@@ -27,8 +29,7 @@ namespace _927.ViewModels
             StopCommand = new RelayCommand(async _ => await Stop(), _ => _workflowTask != null && !_workflowTask.IsCompleted);
         }
 
-        public RelayCommand StartCommand { get; }
-        public RelayCommand StopCommand { get; }
+
 
         public string StatusText
         {

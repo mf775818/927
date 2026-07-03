@@ -6,7 +6,7 @@ namespace _927.ViewModels
     /// WinForms 相容的 RelayCommand 實作
     /// 取代 WPF 的 ICommand，使用事件驅動模式
     /// </summary>
-    internal class RelayCommand
+    public class RelayCommand
     {
         private readonly Action<object?> _execute;
         private readonly Func<object?, bool>? _canExecute;
