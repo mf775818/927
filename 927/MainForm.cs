@@ -22,7 +22,7 @@ namespace _927
         private readonly ILogger _logger;
         private readonly IConnectionStateManager _connectionStateManager;
         private MainWindowViewModel? _viewModel;
-        private System.Windows.Forms.Timer _statusUpdateTimer=new System.Windows.Forms.Timer ();
+        // 改為事件驅動，不再使用定時器
 
         public MainForm(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
@@ -37,7 +37,9 @@ namespace _927
             InitializeComponent();
             InitializeViewModel();
             InitializeUiBindings();
-            InitializeStatusUpdateTimer();
+            // 訂閱連線狀態管理器的狀態變更事件以驅動 UI 更新
+            _connectionStateManager.ConnectionStatusChanged += UpdateConnectionStatusDisplay;
+            // 立即執行一次以初始化 UI
             UpdateConnectionStatusDisplay();
 
             _logger.Information("MainForm initialized");
@@ -84,18 +86,7 @@ namespace _927
             }
         }
 
-        /// <summary>
-        /// 初始化定時器，用於定期更新連接狀態
-        /// </summary>
-        private void InitializeStatusUpdateTimer()
-        {
-            _statusUpdateTimer = new System.Windows.Forms.Timer()
-            {
-                Interval = 1000, // 每秒更新一次
-                Enabled = true
-            };
-            _statusUpdateTimer.Tick += (s, e) => UpdateConnectionStatusDisplay();
-        }
+        // 已移除定時器初始化；改以 ConnectionStatusChanged 事件驅動
 
         /// <summary>
         /// 更新連接狀態顯示
@@ -126,6 +117,9 @@ namespace _927
                 }
             });
         }
+
+        // Overload to allow subscription to ConnectionStatusChanged
+        private void UpdateConnectionStatusDisplay(object? sender, EventArgs e) => UpdateConnectionStatusDisplay();
 
         /// <summary>
         /// 更新按鈕啟用狀態（根據 Command 的 CanExecute）
@@ -186,8 +180,8 @@ namespace _927
         private void MainForm_FormClosing(object? sender, FormClosingEventArgs e)
         {
             _logger.Information("Form closing, requesting cancellation...");
-            _statusUpdateTimer?.Stop();
-            _statusUpdateTimer?.Dispose();
+            // 取消訂閱連線狀態事件
+            _connectionStateManager.ConnectionStatusChanged -= UpdateConnectionStatusDisplay;
             // ViewModel 會透過 CancellationToken 處理取消邏輯
         }
 
@@ -204,11 +198,6 @@ namespace _927
             {
                 action();
             }
-        }
-
-        private void button1_Click(object sender, EventArgs e)
-        {
-
         }
     }
 }

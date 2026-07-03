@@ -160,6 +160,11 @@ namespace ShoeMoldControl.Core
         /// 獲取連線狀態摘要
         /// </summary>
         string GetConnectionStatusSummary();
+
+        /// <summary>
+        /// 當連線狀態變更時觸發（視覺或機器人狀態改變或模擬模式變更）
+        /// </summary>
+        event EventHandler? ConnectionStatusChanged;
     }
 
     /// <summary>
@@ -167,6 +172,7 @@ namespace ShoeMoldControl.Core
     /// </summary>
     public class ConnectionStateManager : IConnectionStateManager
     {
+        public event EventHandler? ConnectionStatusChanged;
         private bool _isVisionConnected;
         private bool _isRobotConnected;
         private readonly bool _isSimulationMode;
@@ -184,12 +190,20 @@ namespace ShoeMoldControl.Core
 
         public void UpdateVisionConnectionStatus(bool isConnected)
         {
-            _isVisionConnected = isConnected;
+            if (_isVisionConnected != isConnected)
+            {
+                _isVisionConnected = isConnected;
+                ConnectionStatusChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         public void UpdateRobotConnectionStatus(bool isConnected)
         {
-            _isRobotConnected = isConnected;
+            if (_isRobotConnected != isConnected)
+            {
+                _isRobotConnected = isConnected;
+                ConnectionStatusChanged?.Invoke(this, EventArgs.Empty);
+            }
         }
 
         public string GetConnectionStatusSummary()
