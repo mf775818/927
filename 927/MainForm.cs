@@ -22,7 +22,7 @@ namespace _927
         private readonly ILogger _logger;
         private readonly IConnectionStateManager _connectionStateManager;
         private MainWindowViewModel? _viewModel;
-        private Timer _statusUpdateTimer;
+        private System.Windows.Forms.Timer _statusUpdateTimer=new System.Windows.Forms.Timer ();
 
         public MainForm(IServiceProvider serviceProvider, CancellationToken cancellationToken)
         {
@@ -89,7 +89,7 @@ namespace _927
         /// </summary>
         private void InitializeStatusUpdateTimer()
         {
-            _statusUpdateTimer = new Timer
+            _statusUpdateTimer = new System.Windows.Forms.Timer()
             {
                 Interval = 1000, // 每秒更新一次
                 Enabled = true

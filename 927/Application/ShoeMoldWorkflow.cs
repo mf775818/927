@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ShoeMoldControl.Core;
 using Serilog;
+using ShoeMoldControl.Infrastructure;
 
 namespace ShoeMoldControl.Application
 {
