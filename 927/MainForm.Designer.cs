@@ -26,75 +26,69 @@ namespace _927
         /// </summary>
         private void InitializeComponent()
         {
-            this.components = new System.ComponentModel.Container();
-            
-            // WinForm 容器屬性設定（對應原 XAML: Title="MainWindow" Height="450" Width="800"）
-            this.AutoScaleDimensions = new SizeF(7F, 15F);
-            this.AutoScaleMode = AutoScaleMode.Font;
-            this.ClientSize = new Size(800, 600);
-            this.Text = "Shoe Mold Control System - Industrial Edition";
-            this.MinimumSize = new Size(600, 400);
-            this.StartPosition = FormStartPosition.CenterScreen;
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.MainForm_FormClosing);
-
-            // Status Label（對應原 InitializeUi 中的 statusLabel，綁定 ViewModel.StatusText）
-            this._statusLabel = new Label
-            {
-                AutoSize = true,
-                Font = new Font("Microsoft JhengHei UI", 14F, FontStyle.Bold),
-                Location = new Point(20, 20),
-                Name = "statusLabel",
-                TabIndex = 0,
-                Text = "Ready"
-            };
-
-            // Start Button（對應原 InitializeUi 中的 startButton）
-            this._startButton = new Button
-            {
-                Location = new Point(20, 60),
-                Name = "startButton",
-                Size = new Size(150, 40),
-                TabIndex = 1,
-                Text = "Start Production",
-                UseVisualStyleBackColor = true,
-                Font = new Font("Microsoft JhengHei UI", 10F)
-            };
-            this._startButton.Click += new System.EventHandler(this.StartButton_Click);
-
-            // Stop Button（對應原 InitializeUi 中的 stopButton）
-            this._stopButton = new Button
-            {
-                Location = new Point(20, 110),
-                Name = "stopButton",
-                Size = new Size(150, 40),
-                TabIndex = 2,
-                Text = "Stop Production",
-                UseVisualStyleBackColor = true,
-                Font = new Font("Microsoft JhengHei UI", 10F),
-                Enabled = false
-            };
-            this._stopButton.Click += new System.EventHandler(this.StopButton_Click);
-
-            // TextBox（對應原 XAML 中的 _927tbx）
-            // 原 XAML: <TextBox x:Name="_927tbx" TextWrapping="Wrap" Text="TextBox" Margin="60,33,481,226" Grid.ColumnSpan="2"/>
-            this._textBox = new TextBox
-            {
-                Location = new Point(60, 33),
-                Name = "_927tbx",
-                Size = new Size(200, 23),
-                TabIndex = 3,
-                Text = "TextBox",
-                Multiline = false
-            };
-
-            // Add all controls to Form
-            this.Controls.Add(this._statusLabel);
-            this.Controls.Add(this._startButton);
-            this.Controls.Add(this._stopButton);
-            this.Controls.Add(this._textBox);
-
-            this.ResumeLayout(false);
-            this.PerformLayout();
+            _statusLabel = new Label();
+            _startButton = new Button();
+            _stopButton = new Button();
+            _textBox = new TextBox();
+            SuspendLayout();
+            // 
+            // _statusLabel
+            // 
+            _statusLabel.AutoSize = true;
+            _statusLabel.Font = new Font("Microsoft JhengHei UI", 14F, FontStyle.Bold);
+            _statusLabel.Location = new Point(20, 20);
+            _statusLabel.Name = "_statusLabel";
+            _statusLabel.Size = new Size(67, 24);
+            _statusLabel.TabIndex = 0;
+            _statusLabel.Text = "Ready";
+            // 
+            // _startButton
+            // 
+            _startButton.Font = new Font("Microsoft JhengHei UI", 10F);
+            _startButton.Location = new Point(75, 110);
+            _startButton.Name = "_startButton";
+            _startButton.Size = new Size(150, 40);
+            _startButton.TabIndex = 1;
+            _startButton.Text = "Start Production";
+            _startButton.UseVisualStyleBackColor = true;
+            _startButton.Click += StartButton_Click;
+            // 
+            // _stopButton
+            // 
+            _stopButton.Enabled = false;
+            _stopButton.Font = new Font("Microsoft JhengHei UI", 10F);
+            _stopButton.Location = new Point(75, 160);
+            _stopButton.Name = "_stopButton";
+            _stopButton.Size = new Size(150, 40);
+            _stopButton.TabIndex = 2;
+            _stopButton.Text = "Stop Production";
+            _stopButton.UseVisualStyleBackColor = true;
+            _stopButton.Click += StopButton_Click;
+            // 
+            // _textBox
+            // 
+            _textBox.Location = new Point(331, 12);
+            _textBox.Name = "_textBox";
+            _textBox.Size = new Size(200, 23);
+            _textBox.TabIndex = 3;
+            _textBox.Text = "TextBox";
+            // 
+            // MainForm
+            // 
+            AutoScaleDimensions = new SizeF(7F, 15F);
+            AutoScaleMode = AutoScaleMode.Font;
+            ClientSize = new Size(800, 600);
+            Controls.Add(_statusLabel);
+            Controls.Add(_startButton);
+            Controls.Add(_stopButton);
+            Controls.Add(_textBox);
+            MinimumSize = new Size(600, 400);
+            Name = "MainForm";
+            StartPosition = FormStartPosition.CenterScreen;
+            Text = "Shoe Mold Control System - Industrial Edition";
+            FormClosing += MainForm_FormClosing;
+            ResumeLayout(false);
+            PerformLayout();
         }
 
         // UI Controls (對應原 XAML 中的控件)

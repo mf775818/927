@@ -49,20 +49,17 @@ namespace _927
             if (_viewModel != null)
             {
                 // 綁定 ViewModel.StatusText => Label.Text
-                _viewModel.PropertyChanged += (sender, e) =>
-                {
+                _viewModel.PropertyChanged += (sender, e) => {
                     if (e.PropertyName == nameof(MainWindowViewModel.StatusText))
                     {
-                        this.InvokeIfRequired(() =>
-                        {
+                        this.InvokeIfRequired(() => {
                             _statusLabel!.Text = _viewModel.StatusText;
                         });
                     }
                     else if (e.PropertyName == nameof(MainWindowViewModel.StartCommand) ||
                              e.PropertyName == nameof(MainWindowViewModel.StopCommand))
                     {
-                        this.InvokeIfRequired(() =>
-                        {
+                        this.InvokeIfRequired(() => {
                             UpdateButtonStates();
                         });
                     }
@@ -149,6 +146,11 @@ namespace _927
             {
                 action();
             }
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+
         }
     }
 }
