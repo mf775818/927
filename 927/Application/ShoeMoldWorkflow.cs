@@ -12,12 +12,14 @@ namespace ShoeMoldControl.Application
         private readonly IRobotController _robotController;
         private readonly IBarcodeParser _barcodeParser;
         private readonly ILogger _logger;
+        private readonly IConnectionStateManager _connectionStateManager;
 
-        public ShoeMoldWorkflow(IVisionService visionService, IRobotController robotController, IBarcodeParser barcodeParser, ILogger logger = null)
+        public ShoeMoldWorkflow(IVisionService visionService, IRobotController robotController, IBarcodeParser barcodeParser, IConnectionStateManager connectionStateManager = null, ILogger logger = null)
         {
             _visionService = visionService ?? throw new ArgumentNullException(nameof(visionService));
             _robotController = robotController ?? throw new ArgumentNullException(nameof(robotController));
             _barcodeParser = barcodeParser ?? throw new ArgumentNullException(nameof(barcodeParser));
+            _connectionStateManager = connectionStateManager;
             _logger = logger ?? Log.ForContext<ShoeMoldWorkflow>();
         }
 
@@ -27,6 +29,9 @@ namespace ShoeMoldControl.Application
             int cycleCount = 0;
             int successCount = 0;
             int failureCount = 0;
+
+            // 嘗試連接設備（如果尚未連接）
+            await InitializeConnectionsAsync(token);
 
             while (!token.IsCancellationRequested)
             {
@@ -94,6 +99,52 @@ namespace ShoeMoldControl.Application
 
             _logger.Information("Production cycle stopped. Total: {Total}, Success: {Success}, Failures: {Failures}", 
                 cycleCount, successCount, failureCount);
+        }
+
+        /// <summary>
+        /// 初始化設備連接
+        /// </summary>
+        private async Task InitializeConnectionsAsync(CancellationToken token)
+        {
+            try
+            {
+                // 檢查是否為模擬模式
+                if (_connectionStateManager != null && _connectionStateManager.IsSimulationMode)
+                {
+                    _logger.Information("Running in SIMULATION mode - using mock services");
+                    
+                    // 模擬模式下，設置虛擬連接狀態
+                    if (_robotController is MockRobotController mockRobot)
+                    {
+                        await mockRobot.ConnectAsync();
+                        _connectionStateManager.UpdateRobotConnectionStatus(true);
+                    }
+                    
+                    _connectionStateManager.UpdateVisionConnectionStatus(true);
+                    return;
+                }
+
+                // 生產模式：嘗試連接實體設備
+                _logger.Information("Running in PRODUCTION mode - connecting to physical devices");
+                
+                if (_robotController is DobotCraController realRobot)
+                {
+                    bool robotConnected = await realRobot.ConnectAsync();
+                    _connectionStateManager?.UpdateRobotConnectionStatus(robotConnected);
+                    
+                    if (!robotConnected)
+                    {
+                        _logger.Warning("Failed to connect to robot - production cycle may fail");
+                    }
+                }
+                
+                // 視覺服務在每次 GrabAndDecode 時自動處理連接
+                _connectionStateManager?.UpdateVisionConnectionStatus(true);
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error initializing device connections");
+            }
         }
 
         private async Task SyncRobotOperationAsync(int targetCommandId, CancellationToken token)
