@@ -7,8 +7,12 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <Button Content="Button" HorizontalAlignment="Left" Margin="461,295,0,0" VerticalAlignment="Top" Height="49" Width="97" Click="Button_Click"/>
-        <TextBox x:Name="_927tbx" TextWrapping="Wrap" Text="TextBox" Margin="60,33,481,226"/>
-
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="5*"/>
+            <ColumnDefinition Width="27*"/>
+        </Grid.ColumnDefinitions>
+        <Button Content="Button" HorizontalAlignment="Left" Margin="336,295,0,0" VerticalAlignment="Top" Height="49" Width="97" Grid.Column="1"/>
+        <TextBox x:Name="_927tbx" TextWrapping="Wrap" Text="TextBox" Margin="60,33,481,226" Grid.ColumnSpan="2"/>
     </Grid>
+
 </Window>

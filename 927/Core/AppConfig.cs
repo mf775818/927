@@ -66,15 +66,40 @@ namespace ShoeMoldControl.Core
                 throw new InvalidOperationException("Vision timeout must be positive");
         }
 
-        public string RobotIpAddress { get; }
-        public int RobotDashboardPort { get; }
-        public int RobotModbusPort { get; }
-        public ushort RobotModbusStatusRegister { get; }
-        public int RobotCommandTimeoutMs { get; }
+        public string RobotIpAddress { get; private set; }
+        public int RobotDashboardPort { get; private set; }
+        public int RobotModbusPort { get; private set; }
+        public ushort RobotModbusStatusRegister { get; private set; }
+        public int RobotCommandTimeoutMs { get; private set; }
 
-        public string VisionIpAddress { get; }
-        public int VisionPort { get; }
-        public int VisionTimeoutMs { get; }
-        public string VisionTriggerCommand { get; }
+        public string VisionIpAddress { get; private set; }
+        public int VisionPort { get; private set; }
+        public int VisionTimeoutMs { get; private set; }
+        public string VisionTriggerCommand { get; private set; }
+    }
+
+    public static class ConfigurationExtensions
+    {
+        public static T GetValue<T>(this IConfiguration configuration, string key, T defaultValue = default)
+        {
+            if (configuration == null) return defaultValue;
+            var section = configuration.GetSection(key);
+            var value = section?.Value;
+            if (string.IsNullOrEmpty(value)) return defaultValue;
+
+            try
+            {
+                if (typeof(T) == typeof(string))
+                    return (T)(object)value;
+
+                var targetType = Nullable.GetUnderlyingType(typeof(T)) ?? typeof(T);
+                var converted = Convert.ChangeType(value, targetType);
+                return (T)converted;
+            }
+            catch
+            {
+                return defaultValue;
+            }
+        }
     }
 }

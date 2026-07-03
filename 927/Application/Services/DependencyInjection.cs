@@ -41,13 +41,7 @@ namespace ShoeMoldControl
             var builder = new ConfigurationBuilder()
                 .SetBasePath(AppDomain.CurrentDomain.BaseDirectory);
 
-            // Load from JSON file if exists
-            if (File.Exists(configPath))
-            {
-                builder.AddJsonFile(configPath, optional: true, reloadOnChange: true);
-            }
-
-            // Load from environment variables (overrides JSON)
+            builder.AddJsonFile(configPath, optional: true, reloadOnChange: true);
             builder.AddEnvironmentVariables(prefix: "SHOEMOLD_");
 
             return builder.Build();

@@ -33,13 +33,10 @@ namespace ShoeMoldControl.Vision
             try
             {
                 return await _policyProvider.VisionCircuitBreaker.ExecuteAsync(
-                    async (ctx) => await _policyProvider.VisionRetryPolicy.ExecuteAsync(
-                        async () => await ExecuteGrabAndDecodeAsync(token),
-                        ctx),
-                    new Context("VisionOperation")
-                    {
-                        ["Logger"] = _logger
-                    });
+                    async (ct) => await _policyProvider.VisionRetryPolicy.ExecuteAsync(
+                        async (token) => await ExecuteGrabAndDecodeAsync(token),
+                        ct),
+                    token);
             }
             catch (BrokenCircuitException)
             {

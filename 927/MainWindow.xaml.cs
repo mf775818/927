@@ -4,6 +4,10 @@ using System.Threading.Tasks;
 using System.Windows;
 using ShoeMoldControl.Core;
 using Serilog;
+using _927.ViewModels;
+using System.Windows.Data;
+using System.Windows.Controls;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace _927
 {
@@ -24,6 +28,8 @@ namespace _927
             _logger = Log.ForContext<MainWindow>();
 
             InitializeComponent();
+            // 建立 ViewModel 並設為 DataContext，遵循 MVVM
+            DataContext = new MainWindowViewModel(_serviceProvider, _cancellationToken, _logger);
             InitializeUi();
             
             _logger.Information("MainWindow initialized");
@@ -44,10 +50,11 @@ namespace _927
             // Status label
             var statusLabel = new Label
             {
-                Content = "Status: Ready",
                 FontSize = 14,
                 FontWeight = FontWeights.Bold
             };
+            // Bind label content to ViewModel.StatusText
+            statusLabel.SetBinding(ContentProperty, new Binding("StatusText"));
             stackPanel.Children.Add(statusLabel);
 
             // Start button
@@ -58,7 +65,11 @@ namespace _927
                 Height = 40,
                 Margin = new Thickness(0, 10, 0, 0)
             };
-            startButton.Click += StartButton_Click;
+            // 使用 ViewModel 的 Command（若 DataContext 是 MainWindowViewModel）
+            if (DataContext is MainWindowViewModel vm)
+            {
+                startButton.Command = vm.StartCommand;
+            }
             stackPanel.Children.Add(startButton);
 
             // Stop button
@@ -70,48 +81,26 @@ namespace _927
                 Margin = new Thickness(0, 10, 0, 0),
                 IsEnabled = false
             };
-            stopButton.Click += StopButton_Click;
+            if (DataContext is MainWindowViewModel vm2)
+            {
+                stopButton.Command = vm2.StopCommand;
+            }
             stackPanel.Children.Add(stopButton);
 
             mainGrid.Children.Add(stackPanel);
             Content = mainGrid;
         }
 
-        private async void StartButton_Click(object sender, RoutedEventArgs e)
+        // Event handlers removed: commands are handled in MainWindowViewModel (MVVM)
+        // Provide an empty handler to satisfy any legacy XAML references
+        private void Button_Click(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                _logger.Information("Starting production workflow");
-                
-                var workflow = _serviceProvider.GetRequiredService<IShoeMoldWorkflow>();
-                _workflowTask = Task.Run(() => workflow.RunProductionCycleAsync(_cancellationToken));
-                
-                _logger.Information("Production workflow started");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Failed to start production workflow");
-                MessageBox.Show($"Error starting production: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
+            // intentionally left blank
         }
 
-        private async void StopButton_Click(object sender, RoutedEventArgs e)
+        private void Button_Click_1(object sender, RoutedEventArgs e)
         {
-            try
-            {
-                _logger.Information("Stopping production workflow");
-                
-                if (_workflowTask != null && !_workflowTask.IsCompleted)
-                {
-                    await _workflowTask;
-                }
-                
-                _logger.Information("Production workflow stopped");
-            }
-            catch (Exception ex)
-            {
-                _logger.Error(ex, "Error stopping production workflow");
-            }
+
         }
     }
 }

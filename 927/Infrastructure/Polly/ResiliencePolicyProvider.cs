@@ -8,10 +8,10 @@ namespace ShoeMoldControl.Infrastructure.Polly
 {
     public interface IResiliencePolicyProvider
     {
-        AsyncRetryPolicy<DecodeResult> VisionRetryPolicy { get; }
-        AsyncCircuitBreakerPolicy<DecodeResult> VisionCircuitBreaker { get; }
-        AsyncRetryPolicy<int> RobotCommandRetryPolicy { get; }
-        AsyncCircuitBreakerPolicy<int> RobotCommandCircuitBreaker { get; }
+        public AsyncRetryPolicy<DecodeResult> VisionRetryPolicy { get; }
+        public AsyncCircuitBreakerPolicy<DecodeResult> VisionCircuitBreaker { get; }
+        public AsyncRetryPolicy<int> RobotCommandRetryPolicy { get; }
+        public AsyncCircuitBreakerPolicy<int> RobotCommandCircuitBreaker { get; }
     }
 
     public class ResiliencePolicyProvider : IResiliencePolicyProvider
@@ -29,7 +29,7 @@ namespace ShoeMoldControl.Infrastructure.Polly
         public ResiliencePolicyProvider()
         {
             // Vision retry: 3 attempts, exponential backoff (1s, 2s, 4s)
-            _visionRetryPolicy = Policy<DecodeResult>
+            _visionRetryPolicy =  Policy<DecodeResult>
                 .HandleResult(r => !r.IsSuccess)
                 .Or<TimeoutException>()
                 .Or<System.Net.Sockets.SocketException>()
@@ -45,21 +45,23 @@ namespace ShoeMoldControl.Infrastructure.Polly
                 );
 
             // Vision circuit breaker: 5 failures in 30 seconds opens for 60 seconds
-            _visionCircuitBreaker = Policy<DecodeResult>
+            _visionCircuitBreaker =  Policy<DecodeResult>
                 .HandleResult(r => !r.IsSuccess)
                 .Or<TimeoutException>()
                 .Or<System.Net.Sockets.SocketException>()
-                .CircuitBreakerAsync(
-                    exceptionsAllowedBeforeBreaking: 5,
+                .AdvancedCircuitBreakerAsync(
+                    failureThreshold: 0.5, // 50% failure rate
+                    samplingDuration: TimeSpan.FromSeconds(30),
+                    minimumThroughput: 10,
                     durationOfBreak: TimeSpan.FromSeconds(60),
-                    onBreak: (outcome, breakDelay) =>
-                    {
-                        Serilog.Log.Warning("Vision circuit breaker OPEN for {BreakDelay}ms due to {Error}", 
-                            breakDelay.TotalMilliseconds, outcome.Result?.ErrorMessage ?? outcome.Exception?.Message);
-                    },
-                    onReset: () => Serilog.Log.Information("Vision circuit breaker CLOSED - service recovered"),
-                    onHalfOpen: () => Serilog.Log.Information("Vision circuit breaker HALF-OPEN - testing recovery")
+                    onBreak: (outcome, breakDelay) => { },
+                    onReset: () => { },
+                    onHalfOpen: () => { }
                 );
+            //double failureThreshold,
+            //TimeSpan samplingDuration,
+            //int minimumThroughput,
+            //TimeSpan durationOfBreak
 
             // Robot command retry: 3 attempts with fixed delay
             _robotCommandRetryPolicy = Policy<int>
@@ -76,21 +78,19 @@ namespace ShoeMoldControl.Infrastructure.Polly
                             retryNumber, 3, outcome.Exception?.Message ?? "Invalid command ID");
                     }
                 );
-
             // Robot circuit breaker: 4 failures in 20 seconds opens for 45 seconds
             _robotCommandCircuitBreaker = Policy<int>
                 .HandleResult(id => id < 0)
                 .Or<TimeoutException>()
                 .Or<System.Net.Sockets.SocketException>()
-                .CircuitBreakerAsync(
-                    exceptionsAllowedBeforeBreaking: 4,
+                .AdvancedCircuitBreakerAsync(
+                    failureThreshold: 0.4, // 40% failure rate
+                    samplingDuration: TimeSpan.FromSeconds(30),
+                    minimumThroughput: 10,
                     durationOfBreak: TimeSpan.FromSeconds(45),
-                    onBreak: (outcome, breakDelay) =>
-                    {
-                        Serilog.Log.Warning("Robot circuit breaker OPEN for {BreakDelay}ms", breakDelay.TotalMilliseconds);
-                    },
-                    onReset: () => Serilog.Log.Information("Robot circuit breaker CLOSED - service recovered"),
-                    onHalfOpen: () => Serilog.Log.Information("Robot circuit breaker HALF-OPEN - testing recovery")
+                    onBreak: (outcome, breakDelay) => { },
+                    onReset: () => { },
+                    onHalfOpen: () => { }
                 );
         }
     }
