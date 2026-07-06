@@ -44,6 +44,7 @@ namespace ShoeMoldControl
 
         /// <summary>
         /// 根據配置註冊視覺服務（實體或虛擬）
+        /// 生產模式下若配置有誤或硬體不可用，將立即拋出異常而非退階至 Mock 服務
         /// </summary>
         private static void RegisterVisionService(IServiceCollection services, IConfiguration configuration)
         {
@@ -69,8 +70,32 @@ namespace ShoeMoldControl
             }
             else
             {
-                services.AddSingleton<IVisionService, TcpVisionService>();
-                Log.Information("Vision Service: Using TCP service (Production Mode)");
+                // 實體生產模式：嚴格註冊 AVL 泛型視覺服務
+                // 若配置有誤、SDK 未安裝或硬體不可用，將立即拋出異常
+                try
+                {
+                    // 驗證必要配置是否存在
+                    var visionIp = configuration.GetValue<string>("Vision:IpAddress");
+                    if (string.IsNullOrWhiteSpace(visionIp))
+                    {
+                        throw new InvalidOperationException(
+                            "Production mode requires valid Vision:IpAddress configuration. " +
+                            "Current value is null or empty. Please update appsettings.json or set SHOEMOLD_VISION_IPADDRESS environment variable.");
+                    }
+
+                    // 註冊 AVL 泛型視覺服務鏈
+                    services.AddSingleton<ICameraDriver<AvlNet.Image>, AvlCameraDriver>();
+                    services.AddSingleton<IImageAnalyzer<AvlNet.Image>, AvlImageAnalyzer>();
+                    services.AddSingleton<IVisionService, GenericVisionService<AvlNet.Image>>();
+
+                    Log.Information("Vision Infrastructure: Production mode activated with AVL GenericVisionService<{Type}>", nameof(AvlNet.Image));
+                    Log.Information("Vision Service: Target device IP = {IP}", visionIp);
+                }
+                catch (Exception ex)
+                {
+                    Log.Fatal(ex, "CRITICAL: Failed to initialize production vision service. Application cannot start without valid vision configuration.");
+                    throw; // 立即拋出異常，阻止應用程式啟動
+                }
             }
         }
 
