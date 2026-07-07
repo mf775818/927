@@ -1,73 +1,47 @@
 ```
 # Build artifacts
-*.o
 *.obj
-*.dll
-*.so
-*.a
-*.class
-*.pyc
-__pycache__/
-*.pyo
-*.pyd
-bin/
-obj/
-out/
 *.exe
-*.out
+*.dll
+*.pdb
+*.userprefs
 
 # Dependencies
-node_modules/
-venv/
-.venv/
-.env
-.env.local
-*.env.*
-.julia/
-zig*/
-target/
-.gradle/
-.mypy_cache/
-.pytest_cache/
-coverage/
-htmlcov/
-.coverage
-
-# Editors/IDEs
-.vscode/
-.idea/
-*.swp
-*.swo
-*.tmp
-
-# System files
-.DS_Store
-Thumbs.db
+packages/
+bin/
+obj/
 
 # Logs
 *.log
 
-# Compressed files
-*.zip
-*.gz
-*.tar
-*.tgz
-*.bz2
-*.xz
-*.7z
-*.rar
-*.zst
-*.lz4
-*.lzh
-*.cab
-*.arj
-*.rpm
-*.deb
-*.Z
-*.lz
-*.lzo
-*.tar.gz
-*.tar.bz2
-*.tar.xz
-*.tar.zst
+# Environment
+.env
+.env.local
+*.env.*
+
+# Editors
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# OS generated files
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Testing
+TestResults/
+
+# Visual Studio Code
+.vscode/tasks.json
+.vscode/launch.json
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
 ```
