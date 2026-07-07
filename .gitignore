@@ -1,79 +1,15 @@
-```csharp
-# Build artifacts
-*.dll
-*.exe
-*.pdb
-*.so
-*.dylib
-*.o
-*.obj
-*.a
-*.lib
-*.out
-
-# Dependencies
-packages/
-node_modules/
-.nuget/
-.nuget.packages/
-
-# Logs
-*.log
-
-# Environment
-.env
-.env.local
-*.env.*
-
-# OS generated files
-.DS_Store
-Thumbs.db
-desktop.ini
-
-# IDE specific
-.vs/
-.idea/
-*.userprefs
-*.user
-.vscode/
-
-# Build directories
-bin/
-obj/
-Debug/
-Release/
-build/
-dist/
-
-# Temporary files
-*.tmp
-*~
 ```
-
-Wait, let me reconsider this. Looking at the file changes, I see C# source files (.cs) being added and modified, which suggests this is a C#/.NET project. However, the current .gitignore already exists and may have relevant rules. Let me check if there are any build artifacts or dependency directories in the changes that need to be added.
-
-Actually, reviewing the changes again - all the added files are source code files (.cs), a markdown file, and no build artifacts like DLLs, EXEs, or dependency directories are mentioned in the changes. The existing .gitignore appears to have some basic rules already.
-
-However, since this appears to be a C# project with typical .NET file structure, it would benefit from standard .NET ignores. Let me provide the appropriate .gitignore:
-
-```csharp
 # Build artifacts
-*.dll
-*.exe
-*.pdb
-*.so
-*.dylib
-*.o
 *.obj
-*.a
-*.lib
-*.out
+*.exe
+*.dll
+*.pdb
+*.userprefs
 
 # Dependencies
 packages/
-node_modules/
-.nuget/
-.nuget.packages/
+bin/
+obj/
 
 # Logs
 *.log
@@ -83,27 +19,29 @@ node_modules/
 .env.local
 *.env.*
 
+# Editors
+.vs/
+.vscode/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
 # OS generated files
 .DS_Store
 Thumbs.db
 desktop.ini
 
-# IDE specific
-.vs/
-.idea/
-*.userprefs
-*.user
-.vscode/
+# Testing
+TestResults/
 
-# Build directories
-bin/
-obj/
-Debug/
-Release/
-build/
-dist/
+# Visual Studio Code
+.vscode/tasks.json
+.vscode/launch.json
 
-# Temporary files
-*.tmp
-*~
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
 ```
