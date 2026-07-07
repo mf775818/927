@@ -2,7 +2,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ShoeMoldControl.Core;
+using ShoeMoldControl.Core.Vision;
 using ShoeMoldControl.Infrastructure.Polly;
+using ShoeMoldControl.Infrastructure.Vision;
 using Polly.CircuitBreaker;
 using Serilog;
 
@@ -11,6 +13,11 @@ namespace ShoeMoldControl.Vision
     /// <summary>
     /// 泛型視覺服務協調器 - 整合相機驅動與圖像分析器
     /// 透過泛型隔離底層硬體差異，提供統一的 IVisionService 介面
+    /// 
+    /// 工業級改進：
+    /// 1. 支援 ManagedFrame 類型的記憶體池管理
+    /// 2. 分析完成後自動歸還幀至緩衝區池
+    /// 3. 保持與 Polly 強健性策略的完全相容
     /// </summary>
     public class GenericVisionService<TFrame> : IVisionService
     {
@@ -19,17 +26,20 @@ namespace ShoeMoldControl.Vision
         private readonly IResiliencePolicyProvider _policyProvider;
         private readonly ILogger _logger;
         private readonly SemaphoreSlim _semaphore = new SemaphoreSlim(1, 1);
+        private readonly FrameMemoryPool? _bufferPool; // 若 TFrame 為 ManagedFrame 則使用
         private bool _disposed;
 
         public GenericVisionService(
             ICameraDriver<TFrame> cameraDriver,
             IImageAnalyzer<TFrame> imageAnalyzer,
             IResiliencePolicyProvider policyProvider,
-            ILogger logger = null)
+            ILogger logger = null,
+            FrameMemoryPool bufferPool = null)
         {
             _cameraDriver = cameraDriver ?? throw new ArgumentNullException(nameof(cameraDriver));
             _imageAnalyzer = imageAnalyzer ?? throw new ArgumentNullException(nameof(imageAnalyzer));
             _policyProvider = policyProvider ?? throw new ArgumentNullException(nameof(policyProvider));
+            _bufferPool = bufferPool;
             _logger = logger ?? Log.ForContext<GenericVisionService<TFrame>>();
         }
 
@@ -63,6 +73,8 @@ namespace ShoeMoldControl.Vision
         private async Task<DecodeResult> ExecutePipelineInternalAsync(CancellationToken token)
         {
             await _semaphore.WaitAsync(token);
+            TFrame rawFrame = default(TFrame);
+            
             try
             {
                 if (!_cameraDriver.IsConnected)
@@ -72,7 +84,7 @@ namespace ShoeMoldControl.Vision
                 }
 
                 // 透過泛型隔離底層取像行為
-                TFrame rawFrame = await _cameraDriver.CaptureFrameAsync(token);
+                rawFrame = await _cameraDriver.CaptureFrameAsync(token);
                 
                 // 傳遞至泛型演算法解析模組
                 return _imageAnalyzer.Analyze(rawFrame);
@@ -85,6 +97,20 @@ namespace ShoeMoldControl.Vision
             }
             finally
             {
+                // 【關鍵】若 TFrame 為 ManagedFrame，分析完成後歸還至緩衝區池
+                if (_bufferPool != null && rawFrame is ManagedFrame managedFrame)
+                {
+                    try
+                    {
+                        _bufferPool.Return(managedFrame);
+                        _logger.Debug("ManagedFrame returned to buffer pool successfully");
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.Warning(ex, "Failed to return ManagedFrame to pool - potential memory leak");
+                    }
+                }
+
                 _semaphore.Release();
             }
         }
@@ -94,6 +120,7 @@ namespace ShoeMoldControl.Vision
             if (_disposed) return;
             _logger.Information("Shutting down generic vision service pipeline...");
             _cameraDriver.Dispose();
+            _bufferPool?.Dispose();
             _semaphore?.Dispose();
             _disposed = true;
             GC.SuppressFinalize(this);

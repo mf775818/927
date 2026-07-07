@@ -3,10 +3,12 @@ using System.IO;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ShoeMoldControl.Core;
+using ShoeMoldControl.Core.Vision;
 using ShoeMoldControl.Application;
 using ShoeMoldControl.Vision;
 using ShoeMoldControl.Infrastructure;
 using ShoeMoldControl.Infrastructure.Polly;
+using ShoeMoldControl.Infrastructure.Vision;
 using Serilog;
 
 namespace ShoeMoldControl
@@ -83,13 +85,56 @@ namespace ShoeMoldControl
                             "Current value is null or empty. Please update appsettings.json or set SHOEMOLD_VISION_IPADDRESS environment variable.");
                     }
 
-                    // 註冊 AVL 泛型視覺服務鏈
-                    services.AddSingleton<ICameraDriver<AvlNet.Image>, AvlCameraDriver>();
-                    services.AddSingleton<IImageAnalyzer<AvlNet.Image>, AvlImageAnalyzer>();
-                    services.AddSingleton<IVisionService, GenericVisionService<AvlNet.Image>>();
+                    // 取得相機解析度配置（可選）
+                    var imageWidth = configuration.GetValue<int>("Vision:ImageWidth", 2448);
+                    var imageHeight = configuration.GetValue<int>("Vision:ImageHeight", 2048);
+                    var pixelFormat = configuration.GetValue<string>("Vision:PixelFormat", "Mono8");
+                    var bufferPoolSize = configuration.GetValue<int>("Vision:BufferPoolSize", 5);
 
-                    Log.Information("Vision Infrastructure: Production mode activated with AVL GenericVisionService<{Type}>", nameof(AvlNet.Image));
-                    Log.Information("Vision Service: Target device IP = {IP}", visionIp);
+                    // 根據像素格式計算 Stride
+                    int stride = pixelFormat switch
+                    {
+                        "Mono8" => imageWidth,
+                        "Bgr24" => imageWidth * 3,
+                        "BayerRG8" => imageWidth,
+                        _ => imageWidth
+                    };
+
+                    // 創建 FrameMemoryPool（單例）
+                    var format = pixelFormat switch
+                    {
+                        "Mono8" => PixelFormat.Mono8,
+                        "Bgr24" => PixelFormat.Bgr24,
+                        "BayerRG8" => PixelFormat.BayerRG8,
+                        _ => PixelFormat.Mono8
+                    };
+
+                    var bufferPool = new FrameMemoryPool(imageWidth, imageHeight, stride, format, bufferPoolSize);
+                    services.AddSingleton(bufferPool);
+
+                    // 註冊 AVL 泛型視覺服務鏈
+                    services.AddSingleton<ICameraDriver<ManagedFrame>>(sp =>
+                    {
+                        var config = sp.GetRequiredService<IVisionConfig>();
+                        var pool = sp.GetRequiredService<FrameMemoryPool>();
+                        var logger = sp.GetService<Serilog.ILogger>();
+                        return new AvlCameraDriver(config, pool, logger, imageWidth, imageHeight);
+                    });
+
+                    services.AddSingleton<IImageAnalyzer<ManagedFrame>, AvlImageAnalyzer>();
+                    services.AddSingleton<IVisionService>(sp =>
+                    {
+                        var cameraDriver = sp.GetRequiredService<ICameraDriver<ManagedFrame>>();
+                        var imageAnalyzer = sp.GetRequiredService<IImageAnalyzer<ManagedFrame>>();
+                        var policyProvider = sp.GetRequiredService<IResiliencePolicyProvider>();
+                        var bufferPool = sp.GetRequiredService<FrameMemoryPool>();
+                        var logger = sp.GetService<Serilog.ILogger>();
+                        return new GenericVisionService<ManagedFrame>(cameraDriver, imageAnalyzer, policyProvider, logger, bufferPool);
+                    });
+
+                    Log.Information("Vision Infrastructure: Production mode activated with AVL GenericVisionService<{Type}>", nameof(ManagedFrame));
+                    Log.Information("Vision Service: Target device IP = {IP}, Resolution = {Width}x{Height}, Buffer Pool Size = {PoolSize}", 
+                        visionIp, imageWidth, imageHeight, bufferPoolSize);
                 }
                 catch (Exception ex)
                 {
