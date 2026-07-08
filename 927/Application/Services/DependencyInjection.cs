@@ -4,11 +4,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using ShoeMoldControl.Core;
 using ShoeMoldControl.Core.Vision;
+using ShoeMoldControl.Core.Hardware;
+using ShoeMoldControl.Core.Domain;
 using ShoeMoldControl.Application;
 using ShoeMoldControl.Vision;
 using ShoeMoldControl.Infrastructure;
 using ShoeMoldControl.Infrastructure.Polly;
 using ShoeMoldControl.Infrastructure.Vision;
+using ShoeMoldControl.Infrastructure.Hardware;
+using ShoeMoldControl.Infrastructure.Hardware.Adapters;
 using Serilog;
 
 namespace ShoeMoldControl
@@ -36,6 +40,7 @@ namespace ShoeMoldControl
             // Register Vision and Robot services based on configuration
             RegisterVisionService(services, configuration);
             RegisterRobotService(services, configuration);
+            RegisterAvrHardwareServices(services, configuration);
             
             // Other Services
             services.AddSingleton<IBarcodeParser, DefaultBarcodeParser>();
@@ -173,6 +178,83 @@ namespace ShoeMoldControl
             {
                 services.AddSingleton<IRobotController, DobotCraController>();
                 Log.Information("Robot Controller: Using DOBOT CRA controller (Production Mode)");
+            }
+        }
+
+        /// <summary>
+        /// 註冊 AVR 硬體相關服務（廠商巨集解耦架構）
+        /// 包含硬體閘道器與各項配接器服務
+        /// </summary>
+        private static void RegisterAvrHardwareServices(IServiceCollection services, IConfiguration configuration)
+        {
+            var useAvrHardware = configuration.GetValue<bool>("Hardware:UseAvrHardware", false);
+            
+            if (!useAvrHardware)
+            {
+                Log.Information("AVR Hardware Services: Disabled (set Hardware:UseAvrHardware=true to enable)");
+                return;
+            }
+
+            try
+            {
+                // 取得 AVR 專案路徑與設備 IP 配置
+                var avrProjectPath = configuration.GetValue<string>("Hardware:AvrProjectPath");
+                var robotIp = configuration.GetValue<string>("Hardware:RobotIpAddress");
+                var plcIp = configuration.GetValue<string>("Hardware:PlcIpAddress");
+
+                if (string.IsNullOrWhiteSpace(robotIp) || string.IsNullOrWhiteSpace(plcIp))
+                {
+                    throw new InvalidOperationException(
+                        "AVR Hardware mode requires valid Hardware:RobotIpAddress and Hardware:PlcIpAddress configuration.");
+                }
+
+                // 註冊硬體閘道器為單例 (管理 ProgramMacrofilters 實體生命週期)
+                services.AddSingleton(sp =>
+                {
+                    var gateway = new AvrHardwareGateway(avrProjectPath);
+                    // 注意：InitializeAsync 需在外部明確呼叫，此處僅建立實體
+                    return gateway;
+                });
+
+                // 註冊配接器服務
+                services.AddSingleton<IAvrRobotMotion>(sp =>
+                {
+                    var gateway = sp.GetRequiredService<AvrHardwareGateway>();
+                    return new AvrRobotMotionAdapter(gateway);
+                });
+
+                services.AddSingleton<IAvrRobotInstructionalJog>(sp =>
+                {
+                    var gateway = sp.GetRequiredService<AvrHardwareGateway>();
+                    return new AvrRobotInstructionalJogAdapter(gateway);
+                });
+
+                services.AddSingleton<IAvrPlcCommunicator>(sp =>
+                {
+                    var gateway = sp.GetRequiredService<AvrHardwareGateway>();
+                    return new AvrPlcCommunicationAdapter(gateway);
+                });
+
+                services.AddSingleton<IAvrCameraDriver>(sp =>
+                {
+                    var gateway = sp.GetRequiredService<AvrHardwareGateway>();
+                    return new AvrCameraDriverAdapter(gateway);
+                });
+
+                services.AddSingleton<IAvrImageAnalyzer>(sp =>
+                {
+                    var gateway = sp.GetRequiredService<AvrHardwareGateway>();
+                    return new AvrImageAnalyzerAdapter(gateway);
+                });
+
+                Log.Information("AVR Hardware Services: Production mode activated with SOLID adapter architecture");
+                Log.Information("AVR Hardware: Robot IP = {RobotIp}, PLC IP = {PlcIp}, Project Path = {ProjectPath}",
+                    robotIp, plcIp, avrProjectPath ?? "(default)");
+            }
+            catch (Exception ex)
+            {
+                Log.Fatal(ex, "CRITICAL: Failed to initialize AVR hardware services. Application cannot start without valid hardware configuration.");
+                throw;
             }
         }
 
