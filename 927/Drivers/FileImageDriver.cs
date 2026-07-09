@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using ShoeMoldControl.Core;
 using ShoeMoldControl.Core.Vision;
 using Serilog;
+using ShoeMoldControl.Infrastructure.Vision;
 
 namespace ShoeMoldControl.Drivers
 {

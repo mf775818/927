@@ -1,3 +1,4 @@
+#if NET48
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -63,3 +64,5 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         }
     }
 }
+
+#endif

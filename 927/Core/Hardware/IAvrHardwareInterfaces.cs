@@ -1,3 +1,4 @@
+#if NET48
 using System;
 using System.Collections.Generic;
 using System.Threading;
@@ -51,3 +52,5 @@ namespace ShoeMoldControl.Core.Hardware
         VisionInspectionResult AnalyzeFrame(Avl.Image image);
     }
 }
+
+#endif

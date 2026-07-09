@@ -1,3 +1,4 @@
+#if NET48
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -174,3 +175,6 @@ namespace ShoeMoldControl.Infrastructure.Hardware
         }
     }
 }
+#else
+namespace ShoeMoldControl.Core.Hardware { public class AvrHardwareGateway { } }
+#endif

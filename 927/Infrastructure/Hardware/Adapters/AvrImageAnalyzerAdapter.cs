@@ -1,3 +1,4 @@
+#if NET48
 using System;
 using ShoeMoldControl.Core.Domain;
 using ShoeMoldControl.Core.Hardware;
@@ -47,3 +48,5 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         }
     }
 }
+
+#endif
