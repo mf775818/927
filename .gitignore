@@ -1,52 +1,47 @@
-# Compiled and build artifacts
-*.pyc
-__pycache__/
-*.o
+```
+# Build artifacts
 *.obj
-*.dll
-*.so
 *.exe
-*.class
-*.out
-*.a
+*.dll
+*.pdb
+*.userprefs
 
 # Dependencies
-node_modules/
-venv/
-.venv/
+packages/
+bin/
+obj/
+
+# Logs
+*.log
+
+# Environment
 .env
 .env.local
 *.env.*
 
-# Build directories
-dist/
-build/
-target/
-*.jar
-*.war
-
-# Logs and temp files
-*.log
-*.tmp
-*.swp
-*.swo
-
 # Editors
+.vs/
 .vscode/
 .idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
 
-# Coverage
-.coverage
-coverage/
-htmlcov/
-
-# OS
+# OS generated files
 .DS_Store
 Thumbs.db
+desktop.ini
 
-# Cache
-.mypy_cache/
-.pytest_cache/
-.gradle/
-.julia/
-zig*/
+# Testing
+TestResults/
+
+# Visual Studio Code
+.vscode/tasks.json
+.vscode/launch.json
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+```
