@@ -7,6 +7,7 @@ using ShoeMoldControl.Core;
 using ShoeMoldControl.Core.Vision;
 using ShoeMoldControl.Infrastructure.Vision;
 using Serilog;
+using AvlNet;
 
 namespace ShoeMoldControl.Vision
 {
@@ -129,7 +130,7 @@ namespace ShoeMoldControl.Vision
                     SendSoftwareTrigger();
 
                     // 步驟 2: 從 SDK 取得原生幀
-                    AvlNet.Image nativeFrame = new AvlNet.Image();
+                    Image nativeFrame = new Image();
                     bool success = Avl.GigEVision_ReceiveImage(_hDevice, out nativeFrame);
 
                     if (!success || nativeFrame.DataPtr == IntPtr.Zero)
@@ -191,7 +192,7 @@ namespace ShoeMoldControl.Vision
             Avl.GigEVision_SetTriggerSource(hDevice, "Software");
         }
 
-        private void ReleaseNativeFrame(ref AvlNet.Image frame)
+        private void ReleaseNativeFrame(ref Image frame)
         {
             // 釋放原生幀資源（若有 IDisposable 介面）
             try
@@ -282,7 +283,7 @@ namespace ShoeMoldControl.Vision
 
                 // 構造 AVL SDK 可識別的原生影像物件（零拷貝）
                 // 注意：此處不進行二次記憶體拷貝，達成資料「直通演算法核心」
-                AvlNet.Image avlImage = CreateAvlImageFromPtr(
+                Image avlImage = CreateAvlImageFromPtr(
                     ptr, 
                     frame.Width, 
                     frame.Height, 
@@ -350,13 +351,13 @@ namespace ShoeMoldControl.Vision
         /// <summary>
         /// 從固定指標創建 AVL Image 物件（零拷貝）
         /// </summary>
-        private AvlNet.Image CreateAvlImageFromPtr(IntPtr ptr, int width, int height, int stride, PixelFormat format)
+        private Image CreateAvlImageFromPtr(IntPtr ptr, int width, int height, int stride, PixelFormat format)
         {
             // 根據像素格式轉換為 AVL 可識別的格式
             // 此處假設 AVL SDK 提供從原始指標建構 Image 的方法
             // 若 SDK 不支援，需使用相對應的 wrapper 方法
             
-            var avlImage = new AvlNet.Image
+            var avlImage = new Image
             {
                 Width = width,
                 Height = height,

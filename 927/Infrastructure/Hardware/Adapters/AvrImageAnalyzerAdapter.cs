@@ -3,6 +3,7 @@
 using System;
 using ShoeMoldControl.Core.Domain;
 using ShoeMoldControl.Core.Hardware;
+using AvlNet;
 
 namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
 {

@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ShoeMoldControl.Core.Domain;
-//using AvlNet; // 假設 AVL 的命名空間名稱
+using AvlNet;
 
 namespace ShoeMoldControl.Core.Hardware
 {
