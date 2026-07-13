@@ -3,6 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ShoeMoldControl.Core.Hardware;
+using AvlNet;
 
 namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
 {
