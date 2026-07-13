@@ -1,9 +1,10 @@
-#if NET48
+#if NET48 || NET8_0_OR_GREATER
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
 using ShoeMoldControl.Core.Domain;
+//using AvlNet; // 假設 AVL 的命名空間名稱
 
 namespace ShoeMoldControl.Core.Hardware
 {

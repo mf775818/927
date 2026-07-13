@@ -1,4 +1,4 @@
-#if NET48
+#if NET48 || NET8_0_OR_GREATER
 using System;
 using System.Threading;
 using System.Threading.Tasks;

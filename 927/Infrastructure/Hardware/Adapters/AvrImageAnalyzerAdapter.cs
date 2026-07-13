@@ -1,4 +1,5 @@
-#if NET48
+#if NET48 || NET8_0_OR_GREATER
+
 using System;
 using ShoeMoldControl.Core.Domain;
 using ShoeMoldControl.Core.Hardware;
@@ -25,7 +26,7 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
             if (image == null) throw new ArgumentNullException(nameof(image));
 
             int moldNum = -1;
-            Atl.Box outObject;
+            Avl.Box outObject;
 
             // 呼叫廠商巨集演算法核心
             _gateway.RawMacros.Inspection(image, out moldNum, out outObject);

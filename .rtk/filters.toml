@@ -1,0 +1,19 @@
+schema_version = 1
+
+[filters.dotnet-build]
+description = "Compact dotnet build output"
+match_command = "^dotnet\\s+build"
+strip_lines_matching = [
+    "^已將項目.*",
+    "^確定要相容的框架.*",
+    "已成功編譯。",
+    "^時間經過.*"
+]
+
+[filters.dotnet-test]
+description = "Compact dotnet test output"
+match_command = "^dotnet\\s+test"
+strip_lines_matching = [
+    "^測試執行成功。",
+    "^總共測試:.*Passed.*"
+]

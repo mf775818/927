@@ -22,19 +22,10 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="6.1.1" />
     <PackageReference Include="Serilog.Sinks.File" Version="7.0.0" />
     <PackageReference Include="CommunityToolkit.Mvvm" Version="8.4.2" />
-  </ItemGroup>
-
-  <!-- 本地 DLL 僅在 Net48 下連結，保證編譯器不會在 .NET 8 下報錯 -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net48'">
-    <Reference Include="AvlNet.Amr">
-      <HintPath>Libs\AvlNet.Amr.dll</HintPath>
-    </Reference>
-    <Reference Include="AvlNet.Types">
-      <HintPath>Libs\AvlNet.Types.dll</HintPath>
-    </Reference>
-    <Reference Include="AvlNet.Kit">
-      <HintPath>Libs\AvlNet.Kit.dll</HintPath>
-    </Reference>
+    <!-- Global Nuget References -->
+    <PackageReference Include="AvlNet.Amr" Version="5.5.2.78740" />
+    <PackageReference Include="AvlNet.Kit" Version="5.5.2.78740" />
+    <PackageReference Include="AvlNet.Types" Version="5.5.2.78740" />
   </ItemGroup>
 
 </Project>

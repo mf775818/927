@@ -1,4 +1,4 @@
-#if NET48
+#if NET48 ||NET8_0_OR_GREATER
 using System;
 using System.Runtime.InteropServices;
 using System.Threading;
