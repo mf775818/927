@@ -1,15 +1,21 @@
 ```
-# Build artifacts
-*.obj
-*.exe
+# Build artifacts and binaries
 *.dll
+*.exe
 *.pdb
-*.userprefs
+*.so
+*.dylib
+*.a
+*.lib
+*.obj
+*.o
+*.out
 
 # Dependencies
 packages/
 bin/
 obj/
+out/
 
 # Logs
 *.log
@@ -20,28 +26,17 @@ obj/
 *.env.*
 
 # Editors
-.vs/
 .vscode/
 .idea/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+*.swp
+*.swo
 
-# OS generated files
+# Coverage
+coverage/
+htmlcov/
+.coverage
+
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
-
-# Testing
-TestResults/
-
-# Visual Studio Code
-.vscode/tasks.json
-.vscode/launch.json
-
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
 ```
