@@ -135,7 +135,7 @@ namespace ShoeMoldControl.Vision
                 SendTimeout = _config.VisionTimeoutMs
             };
             
-            await _tcpClient.ConnectAsync(_config.VisionIpAddress, _config.VisionPort, token);
+            await _tcpClient.ConnectAsync(_config.VisionIpAddress, _config.VisionPort/*, token*/);
             _networkStream = _tcpClient.GetStream();
             _logger.Information("Vision system connected successfully");
         }

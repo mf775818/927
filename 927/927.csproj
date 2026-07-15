@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
@@ -8,6 +8,8 @@
     <ImplicitUsings>enable</ImplicitUsings>
     <UseWindowsForms>true</UseWindowsForms>
     <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <StartupObject>_927.Program</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
@@ -26,6 +28,57 @@
     <PackageReference Include="AvlNet.Amr" Version="5.5.2.78740" />
     <PackageReference Include="AvlNet.Kit" Version="5.5.2.78740" />
     <PackageReference Include="AvlNet.Types" Version="5.5.2.78740" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="AmrLibrary">
+      <HintPath>..\packages\AvlNet.Amr.5.5.2.78740\lib\netstandard2.0\AmrLibrary.dll</HintPath>
+    </Reference>
+    <Reference Include="Avl.Net">
+      <HintPath>Libs\Avl.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="AvlNet.Amr">
+      <HintPath>..\packages\AvlNet.Amr.5.5.2.78740\lib\netstandard2.0\AvlNet.Amr.dll</HintPath>
+    </Reference>
+    <Reference Include="AvlNet.Designers">
+      <HintPath>..\packages\AvlNet.Designers.5.5.2.78740\lib\net48\AvlNet.Designers.dll</HintPath>
+    </Reference>
+    <Reference Include="AvlNet.Kit">
+      <HintPath>Libs\AvlNet.Kit.dll</HintPath>
+    </Reference>
+    <Reference Include="AvlNet.Types">
+      <HintPath>Libs\AvlNet.Types.dll</HintPath>
+    </Reference>
+    <Reference Include="AvlNet.Types.WinForms">
+      <HintPath>Libs\AvlNet.Types.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="HMI">
+      <HintPath>Libs\HMI.dll</HintPath>
+    </Reference>
+    <Reference Include="HMI.Controls">
+      <HintPath>Libs\HMI.Controls.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Bcl.AsyncInterfaces">
+      <HintPath>Libs\Microsoft.Bcl.AsyncInterfaces.dll</HintPath>
+    </Reference>
+    <Reference Include="ProgramMacrofilters">
+      <HintPath>Libs\ProgramMacrofilters.dll</HintPath>
+    </Reference>
+    <Reference Include="System.IO.Pipelines">
+      <HintPath>Libs\System.IO.Pipelines.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Encodings.Web">
+      <HintPath>Libs\System.Text.Encodings.Web.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Text.Json">
+      <HintPath>Libs\System.Text.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ThridLibray">
+      <HintPath>..\..\..\..\..\..\..\Program Files\HuarayTech\MV Viewer\Development\DOTNET DLL\DOTNET_4.0\x64\ThridLibray.dll</HintPath>
+    </Reference>
+    <Reference Include="VideoBoxBase">
+      <HintPath>Libs\VideoBoxBase.dll</HintPath>
+    </Reference>
   </ItemGroup>
 
 </Project>

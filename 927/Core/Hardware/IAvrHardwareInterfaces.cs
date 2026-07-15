@@ -1,10 +1,10 @@
 #if NET48 || NET8_0_OR_GREATER
+using AuroraVision;
+using ShoeMoldControl.Core.Domain;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ShoeMoldControl.Core.Domain;
-using AvlNet;
 
 namespace ShoeMoldControl.Core.Hardware
 {
@@ -23,7 +23,7 @@ namespace ShoeMoldControl.Core.Hardware
     /// </summary>
     public interface IAvrRobotInstructionalJog
     {
-        Task<HardwareMotionResult> StartJogAsync(int jogDirection);
+        Task<HardwareMotionResult> StartJogAsync(JogType jogDirection);
         Task<HardwareMotionResult> StopJogAsync();
         Task<HardwareMotionResult> SetDragModeAsync(bool enable);
     }

@@ -1,9 +1,12 @@
+using Amr;
+using Atl;
+using AuroraVision;
+using ShoeMoldControl.Core.Domain;
+using ShoeMoldControl.Core.Hardware;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using ShoeMoldControl.Core.Domain;
-using ShoeMoldControl.Core.Hardware;
 
 namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
 {
@@ -24,13 +27,13 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         /// 啟動手動 Jog 運動
         /// </summary>
         /// <param name="jogDirection">Jog 方向代碼 (由廠商定義)</param>
-        public async Task<HardwareMotionResult> StartJogAsync(int jogDirection)
+        public async Task<HardwareMotionResult> StartJogAsync(JogType jogDirection)
         {
             return await _gateway.ExecuteSafeFuncAsync(macros =>
             {
-                var outResult = new Amr.Conditional<bool>();
-                var outResponseString = new Amr.Conditional<string>();
-                var outResponseStringArray = new Amr.Conditional<List<string>>();
+                var outResult = new Conditional<bool>();
+                var outResponseString = new Conditional<string>();
+                var outResponseStringArray = new Conditional<List<string>>();
 
                 macros.MoveJogStart(jogDirection, outResult, outResponseString, outResponseStringArray);
 
@@ -50,9 +53,9 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         {
             return await _gateway.ExecuteSafeFuncAsync(macros =>
             {
-                var outResult = new Amr.Conditional<bool>();
-                var outResponseString = new Amr.Conditional<string>();
-                var outResponseStringArray = new Amr.Conditional<List<string>>();
+                var outResult = new Conditional<bool>();
+                var outResponseString = new Conditional<string>();
+                var outResponseStringArray = new Conditional<List<string>>();
 
                 macros.MoveJogStop(outResult, outResponseString, outResponseStringArray);
 
@@ -73,9 +76,9 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         {
             return await _gateway.ExecuteSafeFuncAsync(macros =>
             {
-                var outResult = new Amr.Conditional<bool>();
-                var outResponseString = new Amr.Conditional<string>();
-                var outResponseStringArray = new Amr.Conditional<List<string>>();
+                var outResult = new Conditional<bool>();
+                var outResponseString = new Conditional<string>();
+                var outResponseStringArray = new Conditional<List<string>>();
 
                 if (enable)
                 {

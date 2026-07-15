@@ -3,7 +3,7 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 using ShoeMoldControl.Core.Hardware;
-using AvlNet;
+using Avl;
 
 namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
 {
@@ -27,7 +27,6 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         {
             if (!_gateway.IsInitialized)
                 throw new InvalidOperationException("硬體閘道器尚未初始化，無法連接相機。");
-            
             return Task.CompletedTask;
         }
 
@@ -55,7 +54,7 @@ namespace ShoeMoldControl.Infrastructure.Hardware.Adapters
         /// <summary>
         /// 是否已連接
         /// </summary>
-        public bool IsConnected => _gateway.IsInitialized;
+        public bool IsConnected => _gateway.IsInitialized;  
 
         public void Dispose()
         {
