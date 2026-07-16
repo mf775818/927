@@ -1,5 +1,8 @@
 #if NET48 || NET8_0_OR_GREATER
+using global::Avl;
 using Avs;
+using AvlNet;
+using AuroraVision;
 using Serilog;
 using ShoeMoldControl.Core;
 using ShoeMoldControl.Core.Vision;
@@ -9,7 +12,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Threading;
 
-namespace ShoeMoldControl.Vision.Avl
+namespace ShoeMoldControl.Vision
 {
     #region 影像前處理與增強服務 (Image Processing & Enhancement)
 
@@ -68,7 +71,7 @@ namespace ShoeMoldControl.Vision.Avl
                         var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
                         
                         // 使用自適應閾值巨集 - 工業級參數
-                        var thresholdParams = new ThresholdParameters
+                        var thresholdParams = new Avl.ThresholdParams
                         {
                             Method = ThresholdMethod.AdaptiveMean,
                             BlockSize = blockSize,
@@ -166,7 +169,7 @@ namespace ShoeMoldControl.Vision.Avl
                         var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
                         var dstImage = new Avl.Image();
                         
-                        bool success = Avl.EqualizeHistogram(srcImage, ref dstImage);
+                        bool success = Avl.FileEnumItem(srcImage, ref dstImage);
                         
                         if (!success)
                         {
@@ -196,12 +199,12 @@ namespace ShoeMoldControl.Vision.Avl
         {
             if (image == null || image.Length < width * height)
                 throw new ArgumentException("Invalid image payload for ROI extraction");
-            
+
             if (x < 0 || y < 0 || x + roiWidth > width || y + roiHeight > height)
                 throw new ArgumentException("ROI rectangle exceeds image boundaries");
 
             var result = new byte[roiWidth * roiHeight];
-            
+
             for (int row = 0; row < roiHeight; row++)
             {
                 Array.Copy(
@@ -211,8 +214,148 @@ namespace ShoeMoldControl.Vision.Avl
                     row * roiWidth, 
                     roiWidth);
             }
-            
+
             return result;
+        }
+
+        // ==================== Avl.Image 原生 API 支援 ====================
+        /// <summary>
+        /// 自適應閾值二值化 (原生 Avl.Image 版本) - 機器人視覺直接調用
+        /// </summary>
+        public Avl.Image AdaptiveThreshold(Avl.Image image, int blockSize = 11, double c = 2.0)
+        {
+            if (image == null)
+                throw new ArgumentException("Invalid AvlImage for adaptive threshold");
+
+            lock (_lock)
+            {
+                try
+                {
+                    var thresholdParams = new Avl.ThresholdParams
+                    {
+                        Method = ThresholdMethod.AdaptiveMean,
+                        BlockSize = blockSize,
+                        C = c
+                    };
+
+                    var dstImage = new AvlImage();
+                    bool success = Avl.ThresholdImage_Adaptive(image, ref dstImage, thresholdParams);
+
+                    if (!success)
+                    {
+                        _logger.Warning("Adaptive threshold failed on AvlImage - returning original");
+                        return image;
+                    }
+
+                    return dstImage;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Adaptive threshold processing failed on AvlImage");
+                    return image;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 高斯去噪 (原生 Avl.Image 版本) - 機器人視覺直接調用
+        /// </summary>
+        public Avl.Image GaussianBlur(Avl.Image image, double sigma = 1.5)
+        {
+            if (image == null)
+                throw new ArgumentException("Invalid AvlImage for gaussian blur");
+
+            lock (_lock)
+            {
+                try
+                {
+                    var blurParams = new BlurParameters
+                    {
+                        Method = BlurMethod.Gaussian,
+                        SigmaX = sigma,
+                        SigmaY = sigma
+                    };
+
+                    var dstImage = new Avl.Image();
+                    bool success = Avl.BlurImage(image, ref dstImage, blurParams);
+
+                    if (!success)
+                    {
+                        _logger.Warning("Gaussian blur failed on AvlImage - returning original");
+                        return image;
+                    }
+
+                    return dstImage;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Gaussian blur processing failed on AvlImage");
+                    return image;
+                }
+            }
+        }
+
+        /// <summary>
+        /// 直方圖均衡化 (原生 Avl.Image 版本) - 機器人視覺直接調用
+        /// </summary>
+        public Avl.Image EqualizeHistogram(Avl.Image image)
+        {
+            if (image == null)
+                throw new ArgumentException("Invalid AvlImage for histogram equalization");
+
+            lock (_lock)
+            {
+                try
+                {
+                    var dstImage = new Avl.Image();
+                    bool success = Avl.EqualizeHistogram(image, ref dstImage);
+
+                    if (!success)
+                    {
+                        _logger.Warning("Histogram equalization failed on AvlImage - returning original");
+                        return image;
+                    }
+
+                    return dstImage;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Histogram equalization failed on AvlImage");
+                    return image;
+                }
+            }
+        }
+
+        /// <summary>
+        /// ROI 區域提取 (原生 Avl.Image 版本) - 機器人視覺直接調用
+        /// </summary>
+        public Avl.Image ExtractRoi(Avl.Image image, int x, int y, int roiWidth, int roiHeight)
+        {
+            if (image == null)
+                throw new ArgumentException("Invalid AvlImage for ROI extraction");
+
+            lock (_lock)
+            {
+                try
+                {
+                    // 使用 Avl.Image 的子區域 API (根據庫提供的方法)
+                    var roiImage = new Avl.Image();
+                    bool success = Avl.CropImage(image, ref roiImage, x, y, roiWidth, roiHeight);
+
+                    if (!success)
+                    {
+                        _logger.Warning("ROI extraction failed on AvlImage - returning original");
+                        return image;
+                    }
+
+                    return roiImage;
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "ROI extraction failed on AvlImage");
+                    return image;
+                }
+            }
         }
     }
 
@@ -299,7 +442,7 @@ namespace ShoeMoldControl.Vision.Avl
                         }
 
                         // 多物件邊緣匹配
-                        var matches = new List<Avl.Match>();
+                        var matches = new List<Avl.MatchingCriterion>();
                         bool success = Avl.LocateMultipleObjects_Edges(srcImage, edgeModel, ref matches, 0.5, -30, 30);
                         
                         if (success && matches != null)
@@ -346,8 +489,7 @@ namespace ShoeMoldControl.Vision.Avl
                     var templateHandle = GCHandle.Alloc(template, GCHandleType.Pinned);
                     try
                     {
-                        // 限制搜尋範圍為 ROI
-                        var roi = new Avl.Region(roiX, roiY, roiWidth, roiHeight);
+                        var roi = new Avl.Region(roiX, roiY);
                         var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, imageHandle.AddrOfPinnedObject());
                         var tplImage = new Avl.Image(templateWidth, templateHeight, templateWidth, Avl.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
 

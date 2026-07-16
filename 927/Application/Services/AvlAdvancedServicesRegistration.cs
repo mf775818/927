@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
-using ShoeMoldControl.Vision.Avl;
+using ShoeMoldControl.Vision;
 
 namespace ShoeMoldControl.Application.Services
 {
