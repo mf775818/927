@@ -37,6 +37,9 @@
     <Reference Include="Avl.Net">
       <HintPath>Libs\Avl.Net.dll</HintPath>
     </Reference>
+    <Reference Include="Avl.Net.TS">
+      <HintPath>Libs\Avl.Net.TS.dll</HintPath>
+    </Reference>
     <Reference Include="AvlNet.Amr">
       <HintPath>..\packages\AvlNet.Amr.5.5.2.78740\lib\netstandard2.0\AvlNet.Amr.dll</HintPath>
     </Reference>

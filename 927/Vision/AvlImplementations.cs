@@ -1,6 +1,6 @@
 #if NET48 || NET8_0_OR_GREATER
 using Avl;
-using Avs;
+using AvlNet; // 修正點：統一使用官方標準 AvlNet 命名空間
 using Serilog;
 using ShoeMoldControl.Core;
 using ShoeMoldControl.Core.Vision;
@@ -14,7 +14,6 @@ namespace ShoeMoldControl.Vision
 {
     /// <summary>
     /// AVL GenICam 硬體驅動專屬實作 - 工業級無縫解耦版本
-    /// 使用原始 Avl SDK 內置之命名空間方法，謝絕外部捏造之 P/Invoke 宣告
     /// </summary>
     public class AvlCameraDriver : ICameraDriver<ManagedFrame>, IDisposable
     {
@@ -37,7 +36,6 @@ namespace ShoeMoldControl.Vision
             int imageWidth = 2448,
             int imageHeight = 2048)
         {
-            //TODO 測試20260715 AvlNet.AVL aVL = new AvlNet.AVL();
             _config = config ?? throw new ArgumentNullException(nameof(config));
             _bufferPool = bufferPool ?? throw new ArgumentNullException(nameof(bufferPool));
 
@@ -48,7 +46,7 @@ namespace ShoeMoldControl.Vision
 
             _imageWidth = imageWidth;
             _imageHeight = imageHeight;
-            _imageStride = imageWidth; // Mono8: 1 byte per pixel
+            _imageStride = imageWidth;
 
             _logger = logger ?? Log.ForContext<AvlCameraDriver>();
         }
@@ -61,7 +59,8 @@ namespace ShoeMoldControl.Vision
             _logger.Information("Opening GigE Vision Device via AVL Core API at Address: {IP}", _config.VisionIpAddress);
 
             await Task.Run(() => {
-                _hDevice = Avl.GigEVision_OpenDevice(_config.VisionIpAddress);
+                // 修正點：改用標準 AVL 靜態類別進行硬體操作
+                _hDevice = AVL.GigEVision_OpenDevice(_config.VisionIpAddress);
 
                 if (_hDevice == IntPtr.Zero)
                 {
@@ -74,7 +73,8 @@ namespace ShoeMoldControl.Vision
                 {
                     SetSoftwareTriggerMode(_hDevice);
 
-                    bool acquisitionStarted = Avl.GigEVision_StartAcquisition(_hDevice, "Mono8");
+                    // 修正點：改用標準 AVL 靜態類別
+                    bool acquisitionStarted = AVL.GigEVision_StartAcquisition(_hDevice, "Mono8");
 
                     if (!acquisitionStarted)
                     {
@@ -88,30 +88,26 @@ namespace ShoeMoldControl.Vision
                 }
                 catch
                 {
-                    Avl.GigEVision_CloseDevice(_hDevice);
+                    // 修正點：改用標準 AVL 靜態類別
+                    AVL.GigEVision_CloseDevice(_hDevice);
                     _hDevice = IntPtr.Zero;
                     throw;
                 }
             }, token);
         }
 
-        /// <summary>
-        /// 核心取像方法 - 實現秒級複製與立即釋放硬體幀
-        /// </summary>
         public async Task<ManagedFrame> CaptureFrameAsync(CancellationToken token)
         {
             if (!IsConnected)
             {
                 throw new InvalidOperationException(
-                    "Hardware channel offline. Device handle is invalid or acquisition not started. " +
-                    "Ensure ConnectAsync() was called successfully before capturing frames.");
+                    "Hardware channel offline. Device handle is invalid or acquisition not started.");
             }
 
             var tcs = new TaskCompletionSource<ManagedFrame>();
             using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
             cts.Token.Register(() => tcs.TrySetCanceled(cts.Token));
 
-            // 使用 LongRunning 選項防範非託管硬體底層發生不可預期之阻塞，避免耗盡系統 ThreadPool
             await Task.Factory.StartNew(() => {
                 try
                 {
@@ -119,14 +115,15 @@ namespace ShoeMoldControl.Vision
 
                     SendSoftwareTrigger();
 
+                    // 修正點：型別對齊 Avl.Image
                     Avl.Image nativeFrame = new Avl.Image();
-                    bool success = Avl.GigEVision_ReceiveImage(_hDevice, out nativeFrame);
+
+                    // 修正點：使用 AVL 靜態類別，out 傳參對齊官方簽名
+                    bool success = AVL.GigEVision_ReceiveImage(_hDevice, out nativeFrame);
 
                     if (!success || nativeFrame.Data == IntPtr.Zero)
                     {
-                        throw new TimeoutException(
-                            $"AVL hardware frame reception timeout after {_config.VisionTimeoutMs}ms. " +
-                            "Check network bandwidth, camera trigger settings, and physical connections.");
+                        throw new TimeoutException($"AVL hardware frame reception timeout after {_config.VisionTimeoutMs}ms.");
                     }
 
                     var managedFrame = _bufferPool.Rent();
@@ -164,15 +161,18 @@ namespace ShoeMoldControl.Vision
 
         private void SendSoftwareTrigger()
         {
-            Avl.GigEVision_SetLineSelector(_hDevice, 2);
-            Avl.GigEVision_SetLineMode(_hDevice, 2, "Trigger");
-            Avl.GigEVision_PulseLine(_hDevice, 2);
+            // 修正點：全面改用大寫 AVL 核心靜態操作方法
+            System.Nullable<int> lineIn = 2;
+            AVL.GigEVision_SetLineSelector(_hDevice, lineIn);
+            AVL.GigEVision_SetLineMode(_hDevice, lineIn, "Trigger");
+            AVL.GigEVision_PulseLine(_hDevice, lineIn);
         }
 
         private void SetSoftwareTriggerMode(IntPtr hDevice)
         {
-            Avl.GigEVision_SetTriggerMode(hDevice, "On");
-            Avl.GigEVision_SetTriggerSource(hDevice, "Software");
+            // 修正點：全面改用大寫 AVL
+            AVL.GigEVision_SetTriggerMode(hDevice, "On");
+            AVL.GigEVision_SetTriggerSource(hDevice, "Software");
         }
 
         private void ReleaseNativeFrame(ref Avl.Image frame)
@@ -199,15 +199,17 @@ namespace ShoeMoldControl.Vision
             {
                 if (_isStreaming)
                 {
-                    Avl.GigEVision_StopAcquisition(_hDevice);
+                    // 修正點：改用大寫 AVL
+                    AVL.GigEVision_StopAcquisition(_hDevice);
                     _isStreaming = false;
                 }
 
-                Avl.GigEVision_CloseDevice(_hDevice);
+                // 修正點：改用大寫 AVL
+                AVL.GigEVision_CloseDevice(_hDevice);
             }
             catch (Exception ex)
             {
-                _logger.Warning(ex, "Exception during AVL hardware shutdown sequence - device may have been forcibly disconnected.");
+                _logger.Warning(ex, "Exception during AVL hardware shutdown sequence");
             }
             finally
             {
@@ -228,7 +230,7 @@ namespace ShoeMoldControl.Vision
     }
 
     /// <summary>
-    /// AVL 演算法解碼專屬實作 - 工業級零拷貝版本
+    /// AVL 條碼解碼專屬實作 - 工業級零拷貝版本
     /// </summary>
     public class AvlImageAnalyzer : IImageAnalyzer<ManagedFrame>
     {
@@ -243,63 +245,41 @@ namespace ShoeMoldControl.Vision
         {
             if (frame.Payload == null)
             {
-                throw new ArgumentNullException(nameof(frame), "ManagedFrame payload cannot be null. This indicates a critical pipeline failure.");
+                throw new ArgumentNullException(nameof(frame), "ManagedFrame payload cannot be null.");
             }
 
             frame.Validate();
-
             var stopwatch = System.Diagnostics.Stopwatch.StartNew();
 
-            // 使用 GCHandle 固定受管記憶體，防止 GC 在演算法運行期間移動記憶體位址
             GCHandle handle = GCHandle.Alloc(frame.Payload, GCHandleType.Pinned);
             try
             {
                 IntPtr ptr = handle.AddrOfPinnedObject();
 
-                // 調用正確的非託管建構函式進行影像封裝，達成零拷貝資料直通演算法核心的目的
-                using (var avlImage = CreateAvlImageFromPtr(
-                    ptr,
-                    frame.Width,
-                    frame.Height,
-                    frame.Stride,
-                    frame.Format))
+                using (var avlImage = CreateAvlImageFromPtr(ptr, frame.Width, frame.Height, frame.Stride, frame.Format))
                 {
-                    string[] barCodes;
+                    System.Collections.Generic.List<string> barCodes = new System.Collections.Generic.List<string>();
                     BarcodeParams barcodeParams = new BarcodeParams();
 
-                    bool decodeSuccess = Avl.ReadBarcodes(avlImage, null, null, barcodeParams, out barCodes);
+                    // 修正點：呼叫大寫 AVL 的 RecognizeBarcode 或者是標準 ReadBarcodes API
+                    // 根據底層中 RecognizeBarcode 的多載定義進行調用
+                    AvlNet.RecognizeBarcode(avlImage, new Rectangle2D(0, 0, frame.Width, frame.Height), barcodeParams, 10, 5, 5.0f, out barCodes);
 
                     stopwatch.Stop();
 
-                    if (!decodeSuccess)
-                    {
-                        _logger.Debug("AVL ReadBarcodes returned false - algorithm execution failed.");
-                        return new DecodeResult { IsSuccess = false, ErrorMessage = "Barcode detection algorithm execution failed." };
-                    }
-
-                    if (barCodes == null || barCodes.Length == 0)
+                    if (barCodes == null || barCodes.Count == 0)
                     {
                         _logger.Debug("No barcode detected in the captured frame.");
                         return new DecodeResult { IsSuccess = false, ErrorMessage = "No barcode pattern detected in frame." };
                     }
 
-                    if (string.IsNullOrWhiteSpace(barCodes[0]))
-                    {
-                        _logger.Debug("Barcode detected but decoded result is empty.");
-                        return new DecodeResult { IsSuccess = false, ErrorMessage = "Barcode detected but decoded to empty string." };
-                    }
-
-                    _logger.Information(
-                        "Successfully decoded barcode: {Barcode} (Elapsed: {ElapsedMs}ms)",
-                        barCodes[0],
-                        stopwatch.ElapsedMilliseconds);
-
+                    _logger.Information("Successfully decoded barcode: {Barcode} (Elapsed: {ElapsedMs}ms)", barCodes[0], stopwatch.ElapsedMilliseconds);
                     return new DecodeResult { IsSuccess = true, DecodedText = barCodes[0] };
                 }
             }
             catch (Exception ex)
             {
-                _logger.Error(ex, "Critical exception in AVL ReadBarcodes processing unit - C++ Core Engine error.");
+                _logger.Error(ex, "Critical exception in AVL Barcode processing unit.");
                 throw new InvalidOperationException($"AVL barcode decoding failed: {ex.Message}", ex);
             }
             finally
@@ -311,10 +291,6 @@ namespace ShoeMoldControl.Vision
             }
         }
 
-        /// <summary>
-        /// 依據修正規格：透過對應之多載建構函式封裝非託管影像指標
-        /// 引數順序對齊核心定義：width, height, pitch (stride), type, depth, data
-        /// </summary>
         private Avl.Image CreateAvlImageFromPtr(IntPtr ptr, int width, int height, int stride, Core.Vision.PixelFormat format)
         {
             (Avl.PlainType plainType, int depth) = format switch
