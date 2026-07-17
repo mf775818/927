@@ -192,4 +192,53 @@ namespace ShoeMoldControl.Core.Models
         Critical = 2,  // 橙色 - 嚴重警告
         Error = 3      // 紅色 - 錯誤/緊急停止
     }
+    
+    /// <summary>
+    /// 視覺系統操作模式
+    /// </summary>
+    public enum VisionSystemMode
+    {
+        Simulation,  // 虛擬模擬模式
+        Real         // 實際硬體模式
+    }
+    
+    /// <summary>
+    /// Jog 操作類型定義
+    /// </summary>
+    public enum JogType
+    {
+        JOG_PLUS_X,
+        JOG_MINUS_X,
+        JOG_PLUS_Y,
+        JOG_MINUS_Y,
+        JOG_PLUS_Z,
+        JOG_MINUS_Z,
+        JOG_PLUS_R,
+        JOG_MINUS_R
+    }
+    
+    /// <summary>
+    /// Robot 座標姿態模型
+    /// </summary>
+    public class RobotCoordinatePose
+    {
+        public double X { get; set; }
+        public double Y { get; set; }
+        public double Z { get; set; }
+        public double R { get; set; }
+        
+        public override string ToString() => $"X:{X:F2} Y:{Y:F2} Z:{Z:F2} R:{R:F2}";
+    }
+    
+    /// <summary>
+    /// 視覺檢測結果模型
+    /// </summary>
+    public class VisionInspectionResult
+    {
+        public bool IsSuccess { get; set; }
+        public string BarcodeText { get; set; } = string.Empty;
+        public double Confidence { get; set; }
+        public string ErrorMessage { get; set; } = string.Empty;
+        public List<(double X, double Y)> MarkPositions { get; set; } = new();
+    }
 }
