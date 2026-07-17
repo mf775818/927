@@ -11,7 +11,7 @@ namespace Industrial.UI.Framework
     /// </summary>
     public class IndustrialSafeButton : Button
     {
-        private Timer _pressTimer;
+        private System.Windows.Forms.Timer _pressTimer;
         private int _currentHoldTimeMs = 0;
         private int _targetHoldTimeMs = 2000; // 預設長按 2 秒
         private bool _isTriggered = false;
@@ -57,7 +57,7 @@ namespace Industrial.UI.Framework
             this.MinimumSize = new Size(120, 50); // 符合人因工程最小尺寸
             this.Cursor = Cursors.Hand;
             
-            _pressTimer = new Timer { Interval = 50 }; // 20Hz 更新進度
+            _pressTimer = new System.Windows.Forms.Timer { Interval = 50 }; // 20Hz 更新進度
             _pressTimer.Tick += PressTimer_Tick;
 
             this.MouseDown += IndustrialSafeButton_MouseDown;

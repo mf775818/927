@@ -17,7 +17,7 @@ namespace Industrial.UI.Framework
         private readonly T _dataSource;
         private readonly Control _uiControl;
         private readonly Action<T> _updateAction;
-        private readonly Timer _hfcThrottleTimer;
+        private readonly System.Windows.Forms.Timer _hfcThrottleTimer;
         private bool _isUpdatePending = false;
         private bool _isDisposed = false;
         private readonly int _throttleIntervalMs;
@@ -36,11 +36,11 @@ namespace Industrial.UI.Framework
             _updateAction = updateAction ?? throw new ArgumentNullException(nameof(updateAction));
             _throttleIntervalMs = throttleIntervalMs;
 
-            // 1. 架構分層與事件綁定：只訂閱事件，不直接操作 UI
+            // 1. 架構分層與事件綁定：只訂閱事件，不直    接操作 UI
             _dataSource.PropertyChanged += OnDataSourcePropertyChanged;
 
             // 2. HFC 刷新機制：初始化節流計時器
-            _hfcThrottleTimer = new Timer();
+            _hfcThrottleTimer = new System.Windows.Forms.Timer();
             _hfcThrottleTimer.Interval = throttleIntervalMs;
             _hfcThrottleTimer.Tick += HfcThrottleTimer_Tick;
             _hfcThrottleTimer.Start();
@@ -125,7 +125,7 @@ namespace Industrial.UI.Framework
     {
         private readonly ConcurrentDictionary<string, AlarmRecord> _alarmRecords;
         private readonly int _suppressionWindowMs;
-        private readonly Timer _cleanupTimer;
+        private readonly System.Windows.Forms.Timer _cleanupTimer;
 
         private class AlarmRecord
         {
@@ -145,7 +145,7 @@ namespace Industrial.UI.Framework
             _suppressionWindowMs = suppressionWindowMs;
 
             // 定期清理過期的警報記錄
-            _cleanupTimer = new Timer();
+            _cleanupTimer = new System.Windows.Forms.Timer();
             _cleanupTimer.Interval = 1000; // 每秒清理一次
             _cleanupTimer.Tick += CleanupTimer_Tick;
             _cleanupTimer.Start();
