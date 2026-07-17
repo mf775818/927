@@ -12,6 +12,9 @@ using ShoeMoldControl.Core;
 using ShoeMoldControl.Core.Models;
 using ShoeMoldControl.Core.Hardware;
 using Industrial.UI.Framework;
+using ShoeMoldControl.Infrastructure;
+using ShoeMoldControl.Vision;
+
 
 namespace _927
 {
@@ -228,14 +231,16 @@ namespace _927
                         break;
                     default:
                         alarmItem.ForeColor = TextPrimary;
+                        break;
+
                 }
 
-                _alarmListView.Items.Insert(0, alarmItem);
+                _alarmListViewMonitor.Items.Insert(0, alarmItem);
 
                 // 限制歷史記錄數量，避免記憶體洩漏
-                while (_alarmListView.Items.Count > 100)
+                while (_alarmListViewMonitor.Items.Count > 100)
                 {
-                    _alarmListView.Items.RemoveAt(_alarmListView.Items.Count - 1);
+                    _alarmListViewMonitor.Items.RemoveAt(_alarmListViewMonitor.Items.Count - 1);
                 }
 
                 // 閃爍提示

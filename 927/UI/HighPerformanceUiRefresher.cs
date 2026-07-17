@@ -1,3 +1,4 @@
+using ShoeMoldControl.Core.Models;
 using System;
 using System.Collections.Concurrent;
 using System.ComponentModel;
@@ -232,16 +233,5 @@ namespace Industrial.UI.Framework
         public AlarmLevel Level { get; set; }
         public int OccurrenceCount { get; set; }
         public DateTime FirstOccurrence { get; set; }
-    }
-
-    /// <summary>
-    /// 警報等級定義 (與 Core.Models 保持一致)
-    /// </summary>
-    public enum AlarmLevel
-    {
-        Info = 0,      // 藍色 - 一般資訊
-        Warning = 1,   // 黃色 - 警告
-        Critical = 2,  // 橙色 - 嚴重警告
-        Error = 3      // 紅色 - 錯誤/緊急停止
     }
 }

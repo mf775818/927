@@ -347,7 +347,7 @@ namespace ShoeMoldControl.Vision
                         var tplImage = new Avl.Image(templateWidth, templateHeight, templateWidth, Avl.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
 
                         // 修正點：對齊 LocateSingleObject_SAD 官方核心簽名規格與輸出定義
-                        CoordinateSystem2D alignment;
+                        Avl.CoordinateSystem2D alignment;
                         float score;
                         AVL.LocateSingleObject_SAD(srcImage, null, tplImage, null, 0, 0.5f, out alignment, out score);
 

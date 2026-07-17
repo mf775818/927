@@ -771,7 +771,7 @@ namespace _927
         /// <summary>
         /// 創建 Jog 按鈕 (工業級樣式)
         /// </summary>
-        private Button CreateJogButton(JogType jogType, string text, Size size)
+        private Button CreateJogButton(AuroraVision.JogType jogType, string text, Size size)
         {
             var btn = new Button
             {
@@ -1224,20 +1224,7 @@ namespace _927
         }
 
         // ========== 工業級配色定義 (靜態常數) ==========
-        private static readonly Color DarkBackground = Color.FromArgb(30, 30, 30);
-        private static readonly Color PanelBackground = Color.FromArgb(45, 45, 45);
-        private static readonly Color CardBackground = Color.FromArgb(55, 55, 55);
-        private static readonly Color TextPrimary = Color.FromArgb(220, 220, 220);
-        private static readonly Color TextSecondary = Color.FromArgb(150, 150, 150);
-        private static readonly Color AccentBlue = Color.FromArgb(64, 169, 255);
-        private static readonly Color AccentColor = Color.FromArgb(64, 169, 255);
-        private static readonly Color AccentGreen = Color.FromArgb(39, 174, 96);
-        private static readonly Color AlarmWarning = Color.FromArgb(243, 156, 18);
-        private static readonly Color AlarmError = Color.FromArgb(231, 76, 60);
-        private static readonly Color StatusRunning = Color.FromArgb(39, 174, 96);
-        private static readonly Color StatusIdle = Color.FromArgb(150, 150, 150);
-        private static readonly Color StatusError = Color.FromArgb(231, 76, 60);
-        private static readonly Color JogButtonColor = Color.FromArgb(52, 152, 219);
-        private static readonly Color DangerZoneColor = Color.FromArgb(192, 57, 43);
+        // 所有色彩常數已於 MainForm.cs 定義以避免 partial class 重複
+        // IndustrialPages.Designer.cs 不應重複定義任何色彩常數
     }
 }
