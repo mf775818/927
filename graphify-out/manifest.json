@@ -1,0 +1,207 @@
+{
+  "927.slnx": {
+    "mtime": 1783577361.1992705,
+    "ast_hash": "924dea7be738db77647c6ff45480b3dc",
+    "semantic_hash": "924dea7be738db77647c6ff45480b3dc"
+  },
+  "927/927.csproj": {
+    "mtime": 1784180047.1175063,
+    "ast_hash": "3d4715b0adb27b4c906d6776a77c2770",
+    "semantic_hash": "3d4715b0adb27b4c906d6776a77c2770"
+  },
+  "927/Application/DefaultBarcodeParser.cs": {
+    "mtime": 1783061532.4408994,
+    "ast_hash": "5e50c113eb605b25cd796dd562f917c5",
+    "semantic_hash": "5e50c113eb605b25cd796dd562f917c5"
+  },
+  "927/Application/Services/AvlAdvancedServicesRegistration.cs": {
+    "mtime": 1784169681.3960419,
+    "ast_hash": "4f8cd46413444f9a7607f2ab81bf7471",
+    "semantic_hash": "4f8cd46413444f9a7607f2ab81bf7471"
+  },
+  "927/Application/Services/DependencyInjection.cs": {
+    "mtime": 1783497918.4238746,
+    "ast_hash": "dc12eba44ea8a8ad9651c60c459d271e",
+    "semantic_hash": "dc12eba44ea8a8ad9651c60c459d271e"
+  },
+  "927/Application/ShoeMoldWorkflow.cs": {
+    "mtime": 1783055400.523374,
+    "ast_hash": "c0db487b8beadbe64f69a8d3bc339d4d",
+    "semantic_hash": "c0db487b8beadbe64f69a8d3bc339d4d"
+  },
+  "927/Core/AppConfig.cs": {
+    "mtime": 1782980893.4551153,
+    "ast_hash": "ea8b110c46880e0b4dd693ca49abe8ab",
+    "semantic_hash": "ea8b110c46880e0b4dd693ca49abe8ab"
+  },
+  "927/Core/Domain/HardwareResults.cs": {
+    "mtime": 1783497918.5143495,
+    "ast_hash": "e0177ae864e87673f69bf3bc9240a9dd",
+    "semantic_hash": "e0177ae864e87673f69bf3bc9240a9dd"
+  },
+  "927/Core/Hardware/IAvrHardwareInterfaces.cs": {
+    "mtime": 1784005720.6621408,
+    "ast_hash": "924c5ba204d2963ff57504f7613882b3",
+    "semantic_hash": "924c5ba204d2963ff57504f7613882b3"
+  },
+  "927/Core/Interfaces.cs": {
+    "mtime": 1783318905.6644347,
+    "ast_hash": "a4aebb724419fde1c134f91198333821",
+    "semantic_hash": "a4aebb724419fde1c134f91198333821"
+  },
+  "927/Core/Models.cs": {
+    "mtime": 1782959512.1292024,
+    "ast_hash": "de9381827cbda060dd9e95709886f800",
+    "semantic_hash": "de9381827cbda060dd9e95709886f800"
+  },
+  "927/Core/Models/IndustrialDataModels.cs": {
+    "mtime": 1784272731.984256,
+    "ast_hash": "be6f325db11f95dfbd6b5b3372b14f80",
+    "semantic_hash": "be6f325db11f95dfbd6b5b3372b14f80"
+  },
+  "927/Core/SimulationConfig.cs": {
+    "mtime": 1783315241.3027747,
+    "ast_hash": "bc575ce45ee90929d6618d8a879ae343",
+    "semantic_hash": "bc575ce45ee90929d6618d8a879ae343"
+  },
+  "927/Core/Vision/ManagedFrame.cs": {
+    "mtime": 1783415846.4940636,
+    "ast_hash": "ad973ee5bce818f1be6c8a6733d20a94",
+    "semantic_hash": "ad973ee5bce818f1be6c8a6733d20a94"
+  },
+  "927/Drivers/FileImageDriver.cs": {
+    "mtime": 1783577361.242743,
+    "ast_hash": "fa0f1889a3cf9f508c7f957700138a95",
+    "semantic_hash": "fa0f1889a3cf9f508c7f957700138a95"
+  },
+  "927/Infrastructure/DobotCraController.cs": {
+    "mtime": 1782973136.9399536,
+    "ast_hash": "65b4850f50cedb0cb54c08a9db0475a3",
+    "semantic_hash": "65b4850f50cedb0cb54c08a9db0475a3"
+  },
+  "927/Infrastructure/Hardware/Adapters/AvrCameraDriverAdapter.cs": {
+    "mtime": 1784010827.311666,
+    "ast_hash": "c2171d546d5f666a336814998900d648",
+    "semantic_hash": "c2171d546d5f666a336814998900d648"
+  },
+  "927/Infrastructure/Hardware/Adapters/AvrImageAnalyzerAdapter.cs": {
+    "mtime": 1784005720.7284925,
+    "ast_hash": "38708aaa5096f912500bb2efce4bee0d",
+    "semantic_hash": "38708aaa5096f912500bb2efce4bee0d"
+  },
+  "927/Infrastructure/Hardware/Adapters/AvrPlcCommunicationAdapter.cs": {
+    "mtime": 1783497918.5918264,
+    "ast_hash": "8ef0dddbaf8585d0b8fef3526842e470",
+    "semantic_hash": "8ef0dddbaf8585d0b8fef3526842e470"
+  },
+  "927/Infrastructure/Hardware/Adapters/AvrRobotInstructionalJogAdapter.cs": {
+    "mtime": 1784005720.696302,
+    "ast_hash": "92785d5d0cf1766d14dd8aa52b582071",
+    "semantic_hash": "92785d5d0cf1766d14dd8aa52b582071"
+  },
+  "927/Infrastructure/Hardware/Adapters/AvrRobotMotionAdapter.cs": {
+    "mtime": 1784005720.743505,
+    "ast_hash": "f67a8ffb13d30b8c0855f5952e32113e",
+    "semantic_hash": "f67a8ffb13d30b8c0855f5952e32113e"
+  },
+  "927/Infrastructure/Hardware/AvrHardwareGateway.cs": {
+    "mtime": 1784009117.6800373,
+    "ast_hash": "d50b66e52f38635103688a38414b6ba5",
+    "semantic_hash": "d50b66e52f38635103688a38414b6ba5"
+  },
+  "927/Infrastructure/Logging/LoggerConfigurator.cs": {
+    "mtime": 1782972715.6102242,
+    "ast_hash": "2709397946d7f9fbd154d31bd6d72f5f",
+    "semantic_hash": "2709397946d7f9fbd154d31bd6d72f5f"
+  },
+  "927/Infrastructure/MockRobotController.cs": {
+    "mtime": 1783055019.2702909,
+    "ast_hash": "726c967e69fa4c6c5eb25840f411c1f9",
+    "semantic_hash": "726c967e69fa4c6c5eb25840f411c1f9"
+  },
+  "927/Infrastructure/Polly/ResiliencePolicyProvider.cs": {
+    "mtime": 1783040021.7186794,
+    "ast_hash": "84d70f7650d8bd5a307f21822d9cb287",
+    "semantic_hash": "84d70f7650d8bd5a307f21822d9cb287"
+  },
+  "927/Infrastructure/Vision/FrameBufferPool.cs": {
+    "mtime": 1783415846.5341127,
+    "ast_hash": "be482550e7ac9e1098c3491b162d45b5",
+    "semantic_hash": "be482550e7ac9e1098c3491b162d45b5"
+  },
+  "927/MainForm.Behaviors.cs": {
+    "mtime": 1784272732.0052001,
+    "ast_hash": "78987c44ce11f3a1b92d663d46c844c9",
+    "semantic_hash": "78987c44ce11f3a1b92d663d46c844c9"
+  },
+  "927/MainForm.Designer.cs": {
+    "mtime": 1784279064.251414,
+    "ast_hash": "fbdaf4619bc1ae7ea9c75104db939d17",
+    "semantic_hash": "fbdaf4619bc1ae7ea9c75104db939d17"
+  },
+  "927/MainForm.IndustrialPages.Designer.cs": {
+    "mtime": 1784277001.8328412,
+    "ast_hash": "bff13e2300b8f1276a14dff2985e2151",
+    "semantic_hash": "bff13e2300b8f1276a14dff2985e2151"
+  },
+  "927/MainForm.cs": {
+    "mtime": 1784279062.4003217,
+    "ast_hash": "7631de3372af07b5a56827ac39b891ba",
+    "semantic_hash": "7631de3372af07b5a56827ac39b891ba"
+  },
+  "927/Program.cs": {
+    "mtime": 1784008556.089914,
+    "ast_hash": "17f6287663481f9dae103073660cd449",
+    "semantic_hash": "17f6287663481f9dae103073660cd449"
+  },
+  "927/UI/HighPerformanceUiRefresher.cs": {
+    "mtime": 1784277002.0323079,
+    "ast_hash": "149e4854860dcedccbb3efe1c6ae75a3",
+    "semantic_hash": "149e4854860dcedccbb3efe1c6ae75a3"
+  },
+  "927/UI/IndustrialSafeButton.cs": {
+    "mtime": 1784257886.214055,
+    "ast_hash": "81268e4d78504cdb42779a145fccbf91",
+    "semantic_hash": "81268e4d78504cdb42779a145fccbf91"
+  },
+  "927/ViewModels/MainWindowViewModel.cs": {
+    "mtime": 1783043485.3525288,
+    "ast_hash": "49f160e208a1982c9782aaee5ab1e2a5",
+    "semantic_hash": "49f160e208a1982c9782aaee5ab1e2a5"
+  },
+  "927/ViewModels/RelayCommand.cs": {
+    "mtime": 1783062324.5132904,
+    "ast_hash": "e3f25089225ddcb5f413f4e7e30fc3d3",
+    "semantic_hash": "e3f25089225ddcb5f413f4e7e30fc3d3"
+  },
+  "927/Vision/AvlImplementations.cs": {
+    "mtime": 1784179193.0234962,
+    "ast_hash": "2ca622f7b8074b8969525ed8131dbe19",
+    "semantic_hash": "2ca622f7b8074b8969525ed8131dbe19"
+  },
+  "927/Vision/Avl/AvlAdvancedServices.cs": {
+    "mtime": 1784278117.183475,
+    "ast_hash": "4c073bf41a620d63368d38aa44daec03",
+    "semantic_hash": "4c073bf41a620d63368d38aa44daec03"
+  },
+  "927/Vision/GenericVisionService.cs": {
+    "mtime": 1783415846.5649855,
+    "ast_hash": "29b7c452e1a76b304cf7a34df2555724",
+    "semantic_hash": "29b7c452e1a76b304cf7a34df2555724"
+  },
+  "927/Vision/MockVisionService.cs": {
+    "mtime": 1783055019.380421,
+    "ast_hash": "94432e38f2d243075162f67fa6ff02ac",
+    "semantic_hash": "94432e38f2d243075162f67fa6ff02ac"
+  },
+  "927/Vision/TcpVisionService.cs": {
+    "mtime": 1784006476.8969202,
+    "ast_hash": "382959715c6df61c34731d8782ad91b3",
+    "semantic_hash": "382959715c6df61c34731d8782ad91b3"
+  },
+  "927/appsettings.json": {
+    "mtime": 1783497918.6396515,
+    "ast_hash": "6c65d33c3712e3bf275281d3cc7b1b1b",
+    "semantic_hash": "6c65d33c3712e3bf275281d3cc7b1b1b"
+  }
+}
