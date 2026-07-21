@@ -1,5 +1,4 @@
 #if NET48 || NET8_0_OR_GREATER
-using Avl;
 using AvlNet; // 修正點：全面對齊官方標準命名空間，移除非法之 Avl / Avs
 using Serilog;
 using ShoeMoldControl.Core;
@@ -17,7 +16,7 @@ namespace ShoeMoldControl.Vision
     public interface IImagePreprocessor
     {
         byte[] AdaptiveThreshold(byte[] image, int width, int height, int blockSize = 11, double c = 2.0);
-        byte[] GaussianBlur(byte[] image, int width, int height, double sigma = 1.5);
+        byte[] GaussianBlur(byte[] image, int width, int height, float sigma = 1.6f);
         byte[] EqualizeHistogram(byte[] image, int width, int height);
         byte[] ExtractRoi(byte[] image, int width, int height, int x, int y, int roiWidth, int roiHeight);
     }
@@ -44,13 +43,13 @@ namespace ShoeMoldControl.Vision
                     var handle = GCHandle.Alloc(image, GCHandleType.Pinned);
                     try
                     {
-                        var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
-                        var dstImage = new Avl.Image();
-                        var localVariance = new Avl.Image();
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
+                        var dstImage = new AvlNet.Image();
+                        var localVariance = new AvlNet.Image();
 
                         // 修正點：對齊官方 AdaptiveThresholdImage 參數定義 (Radius, K, MinDifference)
                         int radius = (blockSize - 1) / 2;
-                        AVL.AdaptiveThresholdImage(srcImage, radius, 0.0f, (float)c, dstImage, localVariance);
+                        AvlNet.AVL.AdaptiveThresholdImage(srcImage, radius, 0.0f, (float)c, dstImage, localVariance);
 
                         var result = new byte[width * height];
                         Marshal.Copy(dstImage.Data, result, 0, result.Length);
@@ -69,8 +68,16 @@ namespace ShoeMoldControl.Vision
                 }
             }
         }
-
-        public byte[] GaussianBlur(byte[] image, int width, int height, double sigma = 1.5)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="sigma"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
+        public byte[] GaussianBlur(byte[] image, int width, int height, float sigma = 1.6f)
         {
             if (image == null || image.Length < width * height)
                 throw new ArgumentException("Invalid image payload for gaussian blur");
@@ -82,11 +89,10 @@ namespace ShoeMoldControl.Vision
                     var handle = GCHandle.Alloc(image, GCHandleType.Pinned);
                     try
                     {
-                        var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
-                        var dstImage = new Avl.Image();
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
+                        var dstImage = new AvlNet.Image();
 
-                        // 修正點：對齊官方 GaussianBlur 簽名方法
-                        AVL.GaussianBlur(srcImage, null, (float)sigma, (float)sigma, 3.0f, dstImage);
+                        AvlNet.AVL.DifferenceOfGaussians(srcImage, sigma, sigma, 3.0f, 1.0f, dstImage);
 
                         var result = new byte[width * height];
                         Marshal.Copy(dstImage.Data, result, 0, result.Length);
@@ -105,7 +111,14 @@ namespace ShoeMoldControl.Vision
                 }
             }
         }
-
+        /// <summary>
+        ///
+        /// </summary>
+        /// <param name="image"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
+        /// <exception cref="ArgumentException"></exception>
         public byte[] EqualizeHistogram(byte[] image, int width, int height)
         {
             if (image == null || image.Length < width * height)
@@ -118,11 +131,11 @@ namespace ShoeMoldControl.Vision
                     var handle = GCHandle.Alloc(image, GCHandleType.Pinned);
                     try
                     {
-                        var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
-                        var dstImage = new Avl.Image();
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
+                        var dstImage = new AvlNet.Image();
 
                         // 修正點：更正為官方正宗影像直方圖均衡化 API 
-                        AVL.EqualizeImageHistogram(srcImage, null, dstImage);
+                        AvlNet.AVL.EqualizeImageHistogram(srcImage, 255f, 0f, dstImage);
 
                         var result = new byte[width * height];
                         Marshal.Copy(dstImage.Data, result, 0, result.Length);
@@ -157,7 +170,7 @@ namespace ShoeMoldControl.Vision
 
         // ==================== Avl.Image 原生 API 支援 ====================
 
-        public Avl.Image AdaptiveThreshold(Avl.Image image, int blockSize = 11, double c = 2.0)
+        public AvlNet.Image AdaptiveThreshold(AvlNet.Image image, int blockSize = 11, double c = 2.0)
         {
             if (image == null)
                 throw new ArgumentException("Invalid image");
@@ -165,10 +178,10 @@ namespace ShoeMoldControl.Vision
             {
                 try
                 {
-                    var dstImage = new Avl.Image();
-                    var localVariance = new Avl.Image();
+                    var dstImage = new AvlNet.Image();
+                    var localVariance = new AvlNet.Image();
                     int radius = (blockSize - 1) / 2;
-                    AVL.AdaptiveThresholdImage(image, radius, 0.0f, (float)c, dstImage, localVariance);
+                    AvlNet.AVL.AdaptiveThresholdImage(image, radius, 0.0f, (float)c, dstImage, localVariance);
                     return dstImage;
                 }
                 catch (Exception ex)
@@ -179,7 +192,7 @@ namespace ShoeMoldControl.Vision
             }
         }
 
-        public Avl.Image GaussianBlur(Avl.Image image, double sigma = 1.5)
+        public AvlNet.Image GaussianBlur(AvlNet.Image image, float sigma = 1.6f)
         {
             if (image == null)
                 throw new ArgumentException("Invalid image");
@@ -187,8 +200,8 @@ namespace ShoeMoldControl.Vision
             {
                 try
                 {
-                    var dstImage = new Avl.Image();
-                    AVL.GaussianBlur(image, null, (float)sigma, (float)sigma, 3.0f, dstImage);
+                    var dstImage = new AvlNet.Image();
+                    AvlNet.AVL.DifferenceOfGaussians(image, sigma, sigma, 3.0f, 1.0f, dstImage);
                     return dstImage;
                 }
                 catch (Exception ex)
@@ -199,7 +212,7 @@ namespace ShoeMoldControl.Vision
             }
         }
 
-        public Avl.Image EqualizeHistogram(Avl.Image image)
+        public AvlNet.Image EqualizeHistogram(AvlNet.Image image)
         {
             if (image == null)
                 throw new ArgumentException("Invalid image");
@@ -207,8 +220,8 @@ namespace ShoeMoldControl.Vision
             {
                 try
                 {
-                    var dstImage = new Avl.Image();
-                    AVL.EqualizeImageHistogram(image, null, dstImage);
+                    var dstImage = new AvlNet.Image();
+                    AvlNet.AVL.EqualizeImageHistogram(image, 255f, 0f, dstImage);
                     return dstImage;
                 }
                 catch (Exception ex)
@@ -219,7 +232,7 @@ namespace ShoeMoldControl.Vision
             }
         }
 
-        public Avl.Image ExtractRoi(Avl.Image image, int x, int y, int roiWidth, int roiHeight)
+        public AvlNet.Image ExtractRoi(AvlNet.Image image, int x, int y, int roiWidth, int roiHeight)
         {
             if (image == null)
                 throw new ArgumentException("Invalid image");
@@ -227,10 +240,11 @@ namespace ShoeMoldControl.Vision
             {
                 try
                 {
-                    var roiImage = new Avl.Image();
+                    var roiImage = new AvlNet.Image();
                     // 修正點：利用標準的 CropImageToRectangle 或 Box 邏輯貼合
-                    Rectangle2D rect = new Rectangle2D(x + roiWidth / 2.0f, y + roiHeight / 2.0f, 0.0f, roiWidth, roiHeight);
-                    AVL.CropImage(image, rect, roiImage);
+                    //AvlNet.Rectangle2D rect = new AvlNet.Rectangle2D(x + roiWidth / 2.0f, y + roiHeight / 2.0f, 0.0f, roiWidth, roiHeight);
+
+                    AvlNet.AVL.CropImage(image, new Box(x, y, roiWidth, roiHeight), new Pixel(Color.Aqua), roiImage);
                     return roiImage;
                 }
                 catch (Exception ex)
@@ -258,7 +272,7 @@ namespace ShoeMoldControl.Vision
 
     public interface IPatternMatcher
     {
-        PatternMatchResult LocateSingleObjectSad(byte[] image, int width, int height, byte[] template, int templateWidth, int templateHeight);
+        PatternMatchResult  LocateSingleObjectSad(byte[] image, int width, int height, byte[] template, int templateWidth, int templateHeight);
         List<PatternMatchResult> LocateMultipleObjectsEdges(byte[] image, int width, int height, byte[] template, int templateWidth, int templateHeight);
         PatternMatchResult LocateWithRoi(byte[] image, int width, int height, byte[] template, int templateWidth, int templateHeight, int roiX, int roiY, int roiWidth, int roiHeight);
     }
@@ -277,7 +291,7 @@ namespace ShoeMoldControl.Vision
         {
             return LocateWithRoi(image, width, height, template, templateWidth, templateHeight, 0, 0, width, height);
         }
-
+        
         public List<PatternMatchResult> LocateMultipleObjectsEdges(byte[] image, int width, int height, byte[] template, int templateWidth, int templateHeight)
         {
             var results = new List<PatternMatchResult>();
@@ -289,18 +303,46 @@ namespace ShoeMoldControl.Vision
                     var templateHandle = GCHandle.Alloc(template, GCHandleType.Pinned);
                     try
                     {
-                        var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, imageHandle.AddrOfPinnedObject());
-                        var tplImage = new Avl.Image(templateWidth, templateHeight, templateWidth, Avl.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, imageHandle.AddrOfPinnedObject());
+                        var tplImage = new AvlNet.Image(templateWidth, templateHeight, templateWidth, AvlNet.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
 
-                        // 修正點：利用大寫 AVL.CreateEdgeModel2 模型創建器替代
-                        AvlNet.EdgeModel2 edgeModel;
-                        AVL.CreateEdgeModel2(tplImage, null, null, 1, null, out edgeModel);
+                        INullable<EdgeModel2> edgeModel= null;
+                        AvlNet.AVL.CreateEdgeModel2(
+                            tplImage,
+                            null,
+                            null,
+                            1,
+                            null,
+                            1.0f,    // inSmoothingStdDev (高斯平滑標準差)
+                            10.0f,   // inEdgeThreshold (邊緣梯度門檻)
+                            5.0f,    // inEdgeHysteresis (邊緣遲滯門檻)
+                            -180.0f, // inMinAngle (最小搜尋角度)
+                            180.0f,  // inMaxAngle (最大搜尋角度)
+                            1.0f,    // inAnglePrecision (角度精度)
+                            1.0f,    // inMinScale (最小縮放比)
+                            1.0f,    // inMaxScale (最大縮放比)
+                            1.0f,    // inScalePrecision (縮放精度)
+                            0.5f,    // inEdgeCompleteness (最小邊緣完整度要求 50%)
+                            edgeModel
+                        );
 
-                        // 修正點：官方回傳儲存物件為 Object2D，而非 MatchingCriterion
-                        var matches = new List<Avl.Object2D>();
+                        var matches = new List<AvlNet.Object2D>();
                         int pyramidHeight;
 
-                        AVL.LocateMultipleObjects_Edges(srcImage, null, edgeModel, null, EdgePolarityMode.Any, EdgeNoiseLevel.Normal, false, 0.5f, 10.0f, matches, new List<SafeList<Path>>(), out pyramidHeight);
+                        AvlNet.AVL.LocateMultipleObjects_Edges(
+                            srcImage,
+                            null,
+                            edgeModel,
+                            0,
+                            (AvlNet.EdgePolarityMode)EdgePolarityMode.IgnoreGlobally,
+                            (AvlNet.EdgeNoiseLevel)EdgeNoiseLevel.Low,
+                            false,
+                            0.5f,
+                            10.0f,
+                            out matches,
+                            out List<SafeList<AvlNet.Path>> _,
+                            out pyramidHeight
+                        );
 
                         if (matches != null)
                         {
@@ -310,7 +352,7 @@ namespace ShoeMoldControl.Vision
                                 {
                                     IsSuccess = true,
                                     Confidence = match.Score,
-                                    X = match.Alignment.Origin.X, // 修正點：對齊 Object2D 的結構定義
+                                    X = match.Alignment.Origin.X,
                                     Y = match.Alignment.Origin.Y,
                                     Angle = match.Alignment.Angle
                                 });
@@ -343,13 +385,13 @@ namespace ShoeMoldControl.Vision
                     var templateHandle = GCHandle.Alloc(template, GCHandleType.Pinned);
                     try
                     {
-                        var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, imageHandle.AddrOfPinnedObject());
-                        var tplImage = new Avl.Image(templateWidth, templateHeight, templateWidth, Avl.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, imageHandle.AddrOfPinnedObject());
+                        var tplImage = new AvlNet.Image(templateWidth, templateHeight, templateWidth, AvlNet.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
 
                         // 修正點：對齊 LocateSingleObject_SAD 官方核心簽名規格與輸出定義
-                        Avl.CoordinateSystem2D alignment;
+                        AvlNet.CoordinateSystem2D alignment;
                         float score;
-                        AVL.LocateSingleObject_SAD(srcImage, null, tplImage, null, 0, 0.5f, out alignment, out score);
+                        AvlNet.AVL.LocateSingleObject_SAD(srcImage, null, tplImage, null, 0, 0.5f, out alignment, out score);
 
                         return new PatternMatchResult
                         {
@@ -405,7 +447,11 @@ namespace ShoeMoldControl.Vision
         {
             _logger = logger ?? Log.ForContext<AvlGeometryMeasurer>();
         }
-
+        /// <summary>
+        /// 三點定圓
+        /// </summary>
+        /// <param name="points"></param>
+        /// <returns></returns>
         public GeometryMeasurementResult FitCircleToPoints(List<(double X, double Y)> points)
         {
             if (points == null || points.Count < 3)
@@ -414,10 +460,17 @@ namespace ShoeMoldControl.Vision
             try
             {
                 // 修正點：移除非法之 Avs 命名空間，全部對齊 AvlNet 與核心大寫 AVL 類別
-                var avlPoints = points.Select(p => new Avl.Point2D((float)p.X, (float)p.Y)).ToList();
-                Avl.Circle2D fittedCircle;
-
-                AVL.FitCircleToPoints(avlPoints, out fittedCircle);
+                var avlPoints = points.Select(p => new AvlNet.Point2D((float)p.X, (float)p.Y)).ToList();
+                AvlNet.Circle2D fittedCircle;
+                AvlNet.AVL.FitCircleToPoints(avlPoints, CircleFittingMethod.AlgebraicTaubin, out Circle2D? _FittedCircle);
+                if (_FittedCircle != null)
+                {
+                    fittedCircle = new Circle2D(_FittedCircle.Value.X, _FittedCircle.Value.Y, _FittedCircle.Value.Radius);
+                }
+                else
+                {
+                    return new GeometryMeasurementResult { IsSuccess = false, ErrorMessage = "Failed to fit circle" };
+                }
                 return new GeometryMeasurementResult { IsSuccess = true, Value = fittedCircle.Radius, Points = points };
             }
             catch (Exception ex)
@@ -431,17 +484,32 @@ namespace ShoeMoldControl.Vision
         {
             try
             {
-                // 修正點：改用大寫 AVL.TestPolygonInPolygon
-                var outerPolygon = outer.Select(p => new Avl.Point2D((float)p.X, (float)p.Y)).ToList();
-                var innerPolygon = inner.Select(p => new Avl.Point2D((float)p.X, (float)p.Y)).ToList();
-                return AVL.TestPolygonInPolygon(outerPolygon, innerPolygon);
+                // 轉換座標點陣列
+                var outerPoints = outer.Select(p => new AvlNet.Point2D((float)p.X, (float)p.Y)).ToList();
+                var innerPoints = inner.Select(p => new AvlNet.Point2D((float)p.X, (float)p.Y)).ToList();
+
+                // 建構 AvlNet.Path 物件（第二個參數 closed 設定為 true）
+                using var outerPath = new AvlNet.Path(outerPoints, closed: true);
+                using var innerPath = new AvlNet.Path(innerPoints, closed: true);
+
+                // 呼叫 API：第一參數為內多邊形（inSubPolygon），第二參數為外多邊形（inPolygon）
+                AvlNet.AVL.TestPolygonInPolygon(innerPath, outerPath, out bool isContained);
+
+                return isContained;
             }
             catch
             {
                 return false;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="path"></param>
+        /// <param name="image"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <returns></returns>
         public List<(double X, double Y)> AdjustPathArraysToEdges(List<(double X, double Y)> path, byte[] image, int width, int height)
         {
             try
@@ -449,18 +517,40 @@ namespace ShoeMoldControl.Vision
                 var handle = GCHandle.Alloc(image, GCHandleType.Pinned);
                 try
                 {
-                    var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
+                    var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
 
-                    // 修正點：型別全面修正為官方對齊的單層或嵌套格式
-                    var inputPath = new List<Path> { new Path(path.Select(p => new Point2D(p.X, p.Y)).ToList()) };
-                    var adjustedPaths = new List<SafeList<Path>>();
-                    var alignments = new List<CoordinateSystem2D>();
+                    // 1. 嚴格對齊 IList<IList<Path>> 簽章要求
+                    var singlePath = new AvlNet.Path(path.Select(p => new AvlNet.Point2D((float)p.X, (float)p.Y)).ToList(), false);
+                    IList<IList<AvlNet.Path>> inputPaths = new List<IList<AvlNet.Path>>
+            {
+                new List<AvlNet.Path> { singlePath }
+            };
 
-                    AVL.AdjustPathArraysToEdges(srcImage, inputPath, 5.0f, AdjustmentMetric.PointToEdge, true, true, false, 10, 1.0f, adjustedPaths, alignments);
+                    // 2. 依據 API 簽章宣告輸出的介面集合
+                    IList<AvlNet.SafeList<AvlNet.Path>> adjustedPaths = new List<AvlNet.SafeList<AvlNet.Path>>();
+                    IList<AvlNet.CoordinateSystem2D> alignments = new List<AvlNet.CoordinateSystem2D>();
 
+                    // 3. 呼叫對應的第一個多載 （Overload） 函式
+                    AvlNet.AVL.AdjustPathArraysToEdges(
+                        srcImage,
+                        inputPaths,
+                        5.0f,
+                        AdjustmentMetric.PointDistance_Median,
+                        true,
+                        true,
+                        false,
+                        10,
+                        1.0f,
+                        adjustedPaths,
+                        alignments
+                    );
+
+                    // 4. 解析 SafeList 嵌套內容並回傳
                     if (adjustedPaths.Count > 0 && adjustedPaths[0].Count > 0)
                     {
-                        return adjustedPaths[0][0].Points.Select(p => (p.X, p.Y)).ToList();
+                        return adjustedPaths[0][0].ToArray()
+                            .Select(p => ((double)p.X, (double)p.Y))
+                            .ToList();
                     }
                     return path;
                 }
@@ -538,7 +628,7 @@ namespace ShoeMoldControl.Vision
                 int maxIndex;
                 // 修正點：轉換為大寫 AVL 靜態方法
                 var profileFloat = profile.Select(x => (float)x).ToArray();
-                Avl.Profile avlProfile = new Avl.Profile(0.0f, 1.0f, profileFloat);
+                AvlNet.Profile avlProfile = new AvlNet.Profile(0.0f, 1.0f, profileFloat);
 
                 // 透過標準 LINQ 或 AVL 計算
                 maxValue = profileFloat.Max();
@@ -563,7 +653,7 @@ namespace ShoeMoldControl.Vision
             try
             {
                 // 修正點：轉換為官方標準一維脊線檢測格式 Ridge1D
-                var ridges = new List<Avl.Ridge1D>();
+                var ridges = new List<AvlNet.Ridge1D>();
                 var peaks = new List<(int Index, double Value)>();
 
                 for (int i = 1; i < profile.Length - 1; i++)
@@ -633,7 +723,7 @@ namespace ShoeMoldControl.Vision
                 try
                 {
                     // 修正點：全面更正為 Avl.CharacterSample 等類型結構體
-                    var standardizedSamples = new List<Avl.CharacterSample>();
+                    var standardizedSamples = new List<AvlNet.CharacterSample>();
                     // 此處對齊官方核心 SVM 訓練函數的調用
                     return true;
                 }
@@ -653,7 +743,7 @@ namespace ShoeMoldControl.Vision
                     var handle = GCHandle.Alloc(image, GCHandleType.Pinned);
                     try
                     {
-                        var srcImage = new Avl.Image(width, height, width, Avl.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, handle.AddrOfPinnedObject());
 
                         // 修正點：全面移除錯誤的 OcrModel 引用與過時 P/Invoke
                         // 回傳結構對齊官方標準的辨識與文字分析輸出
@@ -703,3 +793,74 @@ namespace ShoeMoldControl.Vision.Avl
     public class AvlOcrRecognizer { }
 }
 #endif
+/*
+    public enum EdgePolarityMode
+    {
+        IgnoreGlobally = 0,
+        IgnoreLocally = 1,
+        MatchWeakly = 2,
+        MatchStrictly = 3
+    }
+    public enum EdgeNoiseLevel
+    {
+        Low = 0,
+        High = 1
+    }
+        public List<PatternMatchResult> LocateMultipleObjectsEdges(byte[] image, int width, int height, byte[] template, int templateWidth, int templateHeight)
+        {
+            var results = new List<PatternMatchResult>();
+            lock (_lock)
+            {
+                try
+                {
+                    var imageHandle = GCHandle.Alloc(image, GCHandleType.Pinned);
+                    var templateHandle = GCHandle.Alloc(template, GCHandleType.Pinned);
+                    try
+                    {
+                        var srcImage = new AvlNet.Image(width, height, width, AvlNet.PlainType.UInt8, 1, imageHandle.AddrOfPinnedObject());
+                        var tplImage = new AvlNet.Image(templateWidth, templateHeight, templateWidth, AvlNet.PlainType.UInt8, 1, templateHandle.AddrOfPinnedObject());
+
+                        // 修正點：利用大寫 AVL.CreateEdgeModel2 模型創建器替代
+                        AvlNet.EdgeModel2 edgeModel;
+                        AvlNet.AVL.CreateEdgeModel2(tplImage, null, null, 1, null, out edgeModel);
+
+                        // 修正點：官方回傳儲存物件為 Object2D，而非 MatchingCriterion
+                        var matches = new List<AvlNet.Object2D>();
+                        int pyramidHeight;
+
+                        AvlNet.AVL.LocateMultipleObjects_Edges(srcImage, null, edgeModel, null, EdgePolarityMode.Any, EdgeNoiseLevel.Normal, false, 0.5f, 10.0f, out matches, new List<SafeList<AvlNet.Path>>(), out pyramidHeight);
+
+                        if (matches != null)
+                        {
+                            foreach (var match in matches)
+                            {
+                                results.Add(new PatternMatchResult
+                                {
+                                    IsSuccess = true,
+                                    Confidence = match.Score,
+                                    X = match.Alignment.Origin.X, // 修正點：對齊 Object2D 的結構定義
+                                    Y = match.Alignment.Origin.Y,
+                                    Angle = match.Alignment.Angle
+                                });
+                            }
+                        }
+                    }
+                    finally
+                    {
+                        if (templateHandle.IsAllocated)
+                            templateHandle.Free();
+                        if (imageHandle.IsAllocated)
+                            imageHandle.Free();
+                    }
+                }
+                catch (Exception ex)
+                {
+                    _logger.Error(ex, "Multiple objects edge matching failed");
+                }
+            }
+            return results;
+        }
+public static void CreateEdgeModel2(Image inImage, int inMinPyramidLevel, float inSmoothingStdDev, float inEdgeThreshold, float inEdgeHysteresis, float inMinAngle, float inMaxAngle, float inAnglePrecision, float inMinScale, float inMaxScale, float inScalePrecision, float inEdgeCompleteness, INullable<EdgeModel2> outEdgeModel);public static void CreateEdgeModel2(Image inImage, NullableRef<Region> inTemplateRegion, Rectangle2D? inReferenceFrame, int inMinPyramidLevel, int? inMaxPyramidLevel, float inSmoothingStdDev, float inEdgeThreshold, float inEdgeHysteresis, float inMinAngle, float inMaxAngle, float inAnglePrecision, float inMinScale, float inMaxScale, float inScalePrecision, float inEdgeCompleteness, INullable<EdgeModel2> outEdgeModel, out Point2D? outEdgeModelPoint, INullable<SafeList<Path>> outEdges, INullable<SafeList<Image>> diagEdgePyramid);public static void CreateEdgeModel2(Image inImage, NullableRef<Region> inTemplateRegion, Rectangle2D? inReferenceFrame, int inMinPyramidLevel, int? inMaxPyramidLevel, float inSmoothingStdDev, float inEdgeThreshold, float inEdgeHysteresis, float inMinAngle, float inMaxAngle, float inAnglePrecision, float inMinScale, float inMaxScale, float inScalePrecision, float inEdgeCompleteness, INullable<EdgeModel2> outEdgeModel, NullableRef<NullableValue<Point2D>> outEdgeModelPoint, NullableRef<NullableRef<SafeList<Path>>> outEdges);public static void CreateEdgeModel2(Image inImage, NullableRef<Region> inTemplateRegion, Rectangle2D? inReferenceFrame, int inMinPyramidLevel, int? inMaxPyramidLevel, float inSmoothingStdDev, float inEdgeThreshold, float inEdgeHysteresis, float inMinAngle, float inMaxAngle, float inAnglePrecision, float inMinScale, float inMaxScale, float inScalePrecision, float inEdgeCompleteness, INullable<EdgeModel2> outEdgeModel);public static void CreateEdgeModel2(Image inImage, NullableRef<Region> inTemplateRegion, Rectangle2D? inReferenceFrame, int inMinPyramidLevel, int? inMaxPyramidLevel, float inSmoothingStdDev, float inEdgeThreshold, float inEdgeHysteresis, float inMinAngle, float inMaxAngle, float inAnglePrecision, float inMinScale, float inMaxScale, float inScalePrecision, float inEdgeCompleteness, INullable<EdgeModel2> outEdgeModel, NullableRef<NullableValue<Point2D>> outEdgeModelPoint, NullableRef<NullableRef<SafeList<Path>>> outEdges, INullable<SafeList<Image>> diagEdgePyramid);
+
+修正在LocateMultipleObjectsEdges func中LocateMultipleObjects_Edges與CreateEdgeModel2編譯錯誤並給定工業合理預設參數 
+*/

@@ -45,6 +45,7 @@ namespace _927
             _lblRobotTitle = new Label();
             _lblRobotModeLabel = new Label();
             _lblRobotModeValue = new Label();
+            _statusLabel = new Label();
             _lblRobotCommandIdLabel = new Label();
             _lblRobotCommandIdValue = new Label();
             _lblRobotConnectionLabel = new Label();
@@ -83,10 +84,10 @@ namespace _927
             _rbVisionModeSimulation = new RadioButton();
             _rbVisionModeReal = new RadioButton();
             _lblVisionModeStatus = new Label();
-            _statusLabel = new Label();
             _simulationIndicatorLabel = new Label();
             _alarmIndicatorLabel = new Label();
             _stopButton = new Button();
+            _lblAlarmCode = new Label();
             _mainTabControl.SuspendLayout();
             _robotVisionMonitorPage.SuspendLayout();
             _pnlAlarmSummaryCard.SuspendLayout();
@@ -395,6 +396,8 @@ namespace _927
             _pnlRobotStatusCard.Controls.Add(_lblRobotTitle);
             _pnlRobotStatusCard.Controls.Add(_lblRobotModeLabel);
             _pnlRobotStatusCard.Controls.Add(_lblRobotModeValue);
+            _pnlRobotStatusCard.Controls.Add(_lblAlarmCode);
+            _pnlRobotStatusCard.Controls.Add(_statusLabel);
             _pnlRobotStatusCard.Controls.Add(_lblRobotCommandIdLabel);
             _pnlRobotStatusCard.Controls.Add(_lblRobotCommandIdValue);
             _pnlRobotStatusCard.Controls.Add(_lblRobotConnectionLabel);
@@ -439,6 +442,17 @@ namespace _927
             _lblRobotModeValue.Size = new Size(40, 19);
             _lblRobotModeValue.TabIndex = 2;
             _lblRobotModeValue.Text = "INIT";
+            // 
+            // _statusLabel
+            // 
+            _statusLabel.AutoSize = true;
+            _statusLabel.Font = new Font("Microsoft JhengHei UI", 10F);
+            _statusLabel.ForeColor = Color.FromArgb(150, 150, 150);
+            _statusLabel.Location = new Point(953, 21);
+            _statusLabel.Name = "_statusLabel";
+            _statusLabel.Size = new Size(49, 18);
+            _statusLabel.TabIndex = 8;
+            _statusLabel.Text = "Ready";
             // 
             // _lblRobotCommandIdLabel
             // 
@@ -903,17 +917,6 @@ namespace _927
             _lblVisionModeStatus.TabIndex = 3;
             _lblVisionModeStatus.Text = "當前: 模擬模式";
             // 
-            // _statusLabel
-            // 
-            _statusLabel.AutoSize = true;
-            _statusLabel.Font = new Font("Microsoft JhengHei UI", 10F);
-            _statusLabel.ForeColor = Color.FromArgb(150, 150, 150);
-            _statusLabel.Location = new Point(20, 10);
-            _statusLabel.Name = "_statusLabel";
-            _statusLabel.Size = new Size(49, 18);
-            _statusLabel.TabIndex = 8;
-            _statusLabel.Text = "Ready";
-            // 
             // _simulationIndicatorLabel
             // 
             _simulationIndicatorLabel.AutoSize = true;
@@ -953,6 +956,17 @@ namespace _927
             _stopButton.Text = "⏹ 停止";
             _stopButton.UseVisualStyleBackColor = true;
             // 
+            // _lblAlarmCode
+            // 
+            _lblAlarmCode.AutoSize = true;
+            _lblAlarmCode.Font = new Font("Microsoft JhengHei UI", 10F);
+            _lblAlarmCode.ForeColor = Color.FromArgb(150, 150, 150);
+            _lblAlarmCode.Location = new Point(953, 57);
+            _lblAlarmCode.Name = "_lblAlarmCode";
+            _lblAlarmCode.Size = new Size(49, 18);
+            _lblAlarmCode.TabIndex = 8;
+            _lblAlarmCode.Text = "Ready";
+            // 
             // MainForm
             // 
             AutoScaleDimensions = new SizeF(7F, 15F);
@@ -961,7 +975,6 @@ namespace _927
             Controls.Add(_stopButton);
             Controls.Add(_alarmIndicatorLabel);
             Controls.Add(_simulationIndicatorLabel);
-            Controls.Add(_statusLabel);
             Controls.Add(_mainTabControl);
             MinimumSize = new Size(1200, 750);
             Name = "MainForm";
@@ -1086,5 +1099,6 @@ namespace _927
         private Button _btnStartContinuous;
         private Button _btnStopContinuous;
         private Button _btnSaveImage;
+        private Label _lblAlarmCode;
     }
 }

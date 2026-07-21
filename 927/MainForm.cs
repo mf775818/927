@@ -178,11 +178,11 @@ namespace _927
                 // 狀態色彩編碼
                 if (model.IsRunning)
                 {
-                    _lblStatus.ForeColor = Color.FromArgb(39, 174, 96); // 運行綠
+                    _statusLabel.ForeColor = Color.FromArgb(39, 174, 96); // 運行綠
                 }
                 else
                 {
-                    _lblStatus.ForeColor = TextSecondary;
+                    _statusLabel.ForeColor = TextSecondary;
                 }
 
                 // 警報狀態顯示
@@ -235,12 +235,12 @@ namespace _927
 
                 }
 
-                _alarmListViewMonitor.Items.Insert(0, alarmItem);
+                alarmListBox.Items.Insert(0, alarmItem);
 
                 // 限制歷史記錄數量，避免記憶體洩漏
-                while (_alarmListViewMonitor.Items.Count > 100)
+                while (alarmListBox.Items.Count > 100)
                 {
-                    _alarmListViewMonitor.Items.RemoveAt(_alarmListViewMonitor.Items.Count - 1);
+                    alarmListBox.Items.RemoveAt(alarmListBox.Items.Count - 1);
                 }
 
                 // 閃爍提示
@@ -563,28 +563,6 @@ namespace _927
         {
             ToggleNightMode();
             _logger.Information($"Night mode toggled: {_isNightMode}");
-        }
-
-        /// <summary>
-        /// 啟動數據模擬按鈕事件
-        /// </summary>
-        private void BtnStartSimulation_Click(object? sender, EventArgs e)
-        {
-            if (_machineDataModel != null)
-            {
-                _machineDataModel.IsRunning = !_machineDataModel.IsRunning;
-                _btnStartSimulation.Text = _machineDataModel.IsRunning ? "⏸ 停止模擬" : "▶ 啟動數據模擬";
-                
-                if (_machineDataModel.IsRunning)
-                {
-                    StartDataSimulation();
-                    _logger.Information("Data simulation started");
-                }
-                else
-                {
-                    _logger.Information("Data simulation stopped");
-                }
-            }
         }
     }
 }
