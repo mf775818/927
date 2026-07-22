@@ -3,13 +3,12 @@
 *.obj
 *.exe
 *.dll
-*.pdb
-*.userprefs
+*.so
+*.a
+*.out
 
 # Dependencies
 packages/
-bin/
-obj/
 
 # Logs
 *.log
@@ -20,32 +19,107 @@ obj/
 *.env.*
 
 # Editors
-.vs/
 .vscode/
 .idea/
-*.user
-*.suo
-*.userosscache
-*.sln.docstates
+*.swp
+*.swo
+*.tmp
 
 # OS generated files
 .DS_Store
 Thumbs.db
-desktop.ini
+
+# Coverage reports
+coverage/
+htmlcov/
+*.coverage
+
+# Python specific
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+env/
+venv/
+.venv/
+pip-log.txt
+pip-delete-this-directory.txt
+.tox/
+.coverage
+.nox/
+
+# Node.js specific
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+dist/
+build/
+.next/
+nuxt/
+.vuepress/dist
+.serverless/
+.vercel
+
+# Java specific
+*.class
+*.jar
+*.war
+*.ear
+/target/
+.gradle/
+build/
+
+# C# specific
+bin/
+obj/
+*.userprefs
+*.userosscache
+*.sln.docstates
+*.user
+.vs/
+.vscode/
+
+# Go specific
+*.exe
+*.test
+*.prof
+vendor/
+
+# Ruby specific
+*.gem
+*.rbc
+.bundle/
+.rbenv-vars
+.rubocop.yml
+Gemfile.lock
+
+# Compression
+*.zip
+*.gz
+*.tar
+*.tgz
+*.bz2
+*.xz
+*.7z
+*.rar
+*.zst
+*.lz4
+*.lzh
+*.cab
+*.arj
+*.rpm
+*.deb
+*.Z
+*.lz
+*.lzo
+*.tar.gz
+*.tar.bz2
+*.tar.xz
+*.tar.zst
 
 # Testing
-TestResults/
-
-# Visual Studio Code
-.vscode/tasks.json
-.vscode/launch.json
-
-# ReSharper
-_ReSharper*/
-*.[Rr]e[Ss]harper
-*.DotSettings.user
+*.tmp
+*.temp
 ```
-
-#
-graphify-out/cost.json
-graphify-out/cache/
