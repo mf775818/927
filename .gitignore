@@ -1,101 +1,52 @@
 ```
-# Build artifacts
+# Compiled and build artifacts
+*.o
 *.obj
 *.exe
 *.dll
 *.so
 *.a
 *.out
+*.pyc
+*.class
 
 # Dependencies
-packages/
+node_modules/
+venv/
+.venv/
+__pycache__/
+.mypy_cache/
+.pytest_cache/
+target/
+.gradle/
 
-# Logs
-*.log
-
-# Environment
-.env
-.env.local
-*.env.*
+# Build directories
+dist/
+build/
 
 # Editors
 .vscode/
 .idea/
 *.swp
 *.swo
+
+# Logs and temp files
+*.log
 *.tmp
 
-# OS generated files
+# System files
 .DS_Store
 Thumbs.db
+.env
+.env.local
+*.env.*
 
-# Coverage reports
+# Coverage
 coverage/
 htmlcov/
-*.coverage
-
-# Python specific
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-pip-log.txt
-pip-delete-this-directory.txt
-.tox/
 .coverage
-.nox/
 
-# Node.js specific
-node_modules/
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-dist/
-build/
-.next/
-nuxt/
-.vuepress/dist
-.serverless/
-.vercel
-
-# Java specific
-*.class
-*.jar
-*.war
-*.ear
-/target/
-.gradle/
-build/
-
-# C# specific
-bin/
-obj/
-*.userprefs
-*.userosscache
-*.sln.docstates
-*.user
-.vs/
-.vscode/
-
-# Go specific
-*.exe
-*.test
-*.prof
-vendor/
-
-# Ruby specific
-*.gem
-*.rbc
-.bundle/
-.rbenv-vars
-.rubocop.yml
-Gemfile.lock
-
-# Compression
+# Compressed files
 *.zip
 *.gz
 *.tar
@@ -118,8 +69,4 @@ Gemfile.lock
 *.tar.bz2
 *.tar.xz
 *.tar.zst
-
-# Testing
-*.tmp
-*.temp
 ```
