@@ -5,6 +5,8 @@ using System.Threading;
 using System.Threading.Tasks;
 using NModbus;
 using ShoeMoldControl.Core;
+using ShoeMoldControl.Core.Domain;
+using ShoeMoldControl.Core.Models;
 using Serilog;
 using Polly;
 using ShoeMoldControl.Infrastructure.Polly;
@@ -233,6 +235,153 @@ namespace ShoeMoldControl.Infrastructure
             {
                 _dashboardSemaphore.Release();
             }
+        }
+
+        public async Task<HardwareMotionResult> JogAsync(JogType jogType, int speedPercent, CancellationToken token)
+        {
+            string command = jogType switch
+            {
+                JogType.JOG_PLUS_X => $"JogPlusX({speedPercent});",
+                JogType.JOG_MINUS_X => $"JogMinusX({speedPercent});",
+                JogType.JOG_PLUS_Y => $"JogPlusY({speedPercent});",
+                JogType.JOG_MINUS_Y => $"JogMinusY({speedPercent});",
+                JogType.JOG_PLUS_Z => $"JogPlusZ({speedPercent});",
+                JogType.JOG_MINUS_Z => $"JogMinusZ({speedPercent});",
+                JogType.JOG_PLUS_R => $"JogPlusR({speedPercent});",
+                JogType.JOG_MINUS_R => $"JogMinusR({speedPercent});",
+                _ => throw new ArgumentException($"Invalid JogType: {jogType}", nameof(jogType))
+            };
+
+            int result = await ExecuteCommandAsync(command, token);
+            
+            if (result >= 0)
+            {
+                _logger.Information("Jog command executed: {JogType} at {Speed}%", jogType, speedPercent);
+                return HardwareMotionResult.Success($"Jog {jogType} started");
+            }
+            else
+            {
+                _logger.Warning("Jog command failed: {JogType}", jogType);
+                return HardwareMotionResult.Failure($"Jog {jogType} failed");
+            }
+        }
+
+        public async Task<HardwareMotionResult> StopJogAsync()
+        {
+            int result = await ExecuteCommandAsync("StopJog();", CancellationToken.None);
+            
+            if (result >= 0)
+            {
+                _logger.Information("Jog stopped successfully");
+                return HardwareMotionResult.Success("Jog stopped");
+            }
+            else
+            {
+                _logger.Warning("Jog stop command failed");
+                return HardwareMotionResult.Failure("Jog stop failed");
+            }
+        }
+
+        public async Task<HardwareMotionResult> MoveToAsync(double x, double y, double z, double r, CancellationToken token)
+        {
+            string command = $"MoveL({x},{y},{z},{r},0,0,0,0);";
+            int result = await ExecuteCommandAsync(command, token);
+            
+            if (result >= 0)
+            {
+                _logger.Information("MoveTo command executed: ({X},{Y},{Z},{R})", x, y, z, r);
+                return HardwareMotionResult.Success($"Moved to ({x:F2},{y:F2},{z:F2},{r:F2})");
+            }
+            else
+            {
+                _logger.Warning("MoveTo command failed");
+                return HardwareMotionResult.Failure("MoveTo failed");
+            }
+        }
+
+        public async Task<HardwareMotionResult> HomeAsync(CancellationToken token)
+        {
+            int result = await ExecuteCommandAsync("Home();", token);
+            
+            if (result >= 0)
+            {
+                _logger.Information("Home command executed");
+                return HardwareMotionResult.Success("Homing completed");
+            }
+            else
+            {
+                _logger.Warning("Home command failed");
+                return HardwareMotionResult.Failure("Homing failed");
+            }
+        }
+
+        public async Task<HardwareMotionResult> StopAsync()
+        {
+            int result = await ExecuteCommandAsync("Stop();", CancellationToken.None);
+            
+            if (result >= 0)
+            {
+                _logger.Information("Emergency stop executed");
+                return HardwareMotionResult.Success("Stopped");
+            }
+            else
+            {
+                _logger.Warning("Emergency stop command failed");
+                return HardwareMotionResult.Failure("Stop failed");
+            }
+        }
+
+        public async Task<RobotCoordinatePose> GetPositionAsync(CancellationToken token)
+        {
+            if (_dashboardStream == null || _dashboardClient?.Connected != true)
+            {
+                _logger.Warning("Cannot get position - dashboard not connected");
+                return null;
+            }
+
+            await _dashboardSemaphore.WaitAsync(token);
+            try
+            {
+                _logger.Debug("Requesting current position");
+                byte[] data = Encoding.ASCII.GetBytes("GetActualTCP();");
+                await _dashboardStream.WriteAsync(data, 0, data.Length, token);
+
+                using var cts = CancellationTokenSource.CreateLinkedTokenSource(token);
+                cts.CancelAfter(_config.RobotCommandTimeoutMs);
+
+                byte[] buffer = new byte[1024];
+                int bytesRead = await _dashboardStream.ReadAsync(buffer, 0, buffer.Length, cts.Token);
+                if (bytesRead == 0) return null;
+
+                string response = Encoding.ASCII.GetString(buffer, 0, bytesRead).Trim();
+                _logger.Debug("Position response: {Response}", response);
+
+                // Parse response format: 0,x,y,z,r,p,w
+                var parts = response.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                if (parts.Length >= 5 && parts[0] == "0" &&
+                    double.TryParse(parts[1], out double x) &&
+                    double.TryParse(parts[2], out double y) &&
+                    double.TryParse(parts[3], out double z) &&
+                    double.TryParse(parts[4], out double r))
+                {
+                    return new RobotCoordinatePose { X = x, Y = y, Z = z, R = r };
+                }
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.Error(ex, "Error getting position");
+                return null;
+            }
+            finally
+            {
+                _dashboardSemaphore.Release();
+            }
+        }
+
+        public async Task<RobotMode> GetModeAsync(CancellationToken token)
+        {
+            return await GetRobotModeAsync(token);
         }
 
         public async Task DisconnectAsync()
