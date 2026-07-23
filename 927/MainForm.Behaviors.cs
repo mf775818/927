@@ -6,6 +6,8 @@ using System.Windows.Forms;
 using Serilog;
 using ShoeMoldControl.Core.Hardware;
 using Industrial.UI.Framework;
+using ShoeMoldControl.Core.Models;
+using ShoeMoldControl.Core.Domain;
 
 namespace _927
 {
@@ -384,8 +386,8 @@ namespace _927
 
                 if (saveDialog.ShowDialog() == DialogResult.OK)
                 {
-                    // 將 Avl.Image 轉換為 Bitmap 並儲存
-                    var bitmap = ConvertAvlImageToBitmap(_lastCapturedImage);
+                    // 將 byte[] 轉換為 Bitmap 並儲存
+                    var bitmap = ConvertImageDataToBitmap(_lastCapturedImage);
                     bitmap.Save(saveDialog.FileName);
                     
                     _logger.Information($"Image saved to {saveDialog.FileName}");
@@ -443,7 +445,7 @@ namespace _927
         {
             try
             {
-                Avl.Image image;
+                byte[] imageData;
                 VisionInspectionResult result;
 
                 if (_visionSystemMode == VisionSystemMode.Simulation)
@@ -461,36 +463,41 @@ namespace _927
                             R = (double)_numSimulatedR.Value
                         };
                         
-                        image = mockVision.GenerateTestImage(simPose, barcode);
+                        // 使用 GenerateTestImage 生成 Bitmap 並轉換為 byte[]
+                        using var bitmap = mockVision.GenerateTestImage(simPose, barcode);
+                        using var ms = new MemoryStream();
+                        bitmap.Save(ms, System.Drawing.Imaging.ImageFormat.Png);
+                        imageData = ms.ToArray();
+                        
                         result = new VisionInspectionResult
                         {
-                            Success = true,
-                            Barcode = barcode ?? "SIM-001",
+                            IsSuccess = true,
+                            BarcodeText = barcode ?? "SIM-001",
                             Confidence = 95.5,
-                            MarkPositions = new System.Drawing.PointF[]
+                            MarkPositions = new System.Collections.Generic.List<(double, double)>
                             {
-                                new PointF((float)_numSimulatedX.Value, (float)_numSimulatedY.Value)
+                                ((double)_numSimulatedX.Value, (double)_numSimulatedY.Value)
                             }
                         };
                     }
                     else
                     {
                         // Fallback: 使用預設模擬
-                        image = await _visionService.CaptureAsync(_cancellationToken);
-                        result = await _visionService.InspectAsync(image, _cancellationToken);
+                        imageData = await _visionService.CaptureAsync(_cancellationToken);
+                        result = await _visionService.InspectAsync(imageData, _cancellationToken);
                     }
                 }
                 else
                 {
                     // 實際模式：串接硬體
-                    image = await _visionService.CaptureAsync(_cancellationToken);
-                    result = await _visionService.InspectAsync(image, _cancellationToken);
+                    imageData = await _visionService.CaptureAsync(_cancellationToken);
+                    result = await _visionService.InspectAsync(imageData, _cancellationToken);
                 }
 
-                // 更新 UI
-                _lastCapturedImage = image;
+                // 更新 UI - 將 byte[] 轉換回 Bitmap
+                _lastCapturedImage = imageData;
                 _lastInspectionResult = result;
-                UpdateVisionDisplay(image, result);
+                UpdateVisionDisplay(imageData, result);
             }
             catch (Exception ex)
             {
@@ -507,24 +514,24 @@ namespace _927
         /// <summary>
         /// 更新視覺顯示 UI
         /// </summary>
-        private void UpdateVisionDisplay(Avl.Image image, VisionInspectionResult result)
+        private void UpdateVisionDisplay(byte[] imageData, VisionInspectionResult result)
         {
             this.InvokeIfRequired(() =>
             {
                 // 顯示影像
-                var bitmap = ConvertAvlImageToBitmap(image);
+                var bitmap = ConvertImageDataToBitmap(imageData);
                 _imgCapturedImage.Image = bitmap;
                 _imgCapturedImage.Visible = true;
                 _lblNoImagePlaceholder.Visible = false;
 
                 // 更新檢測結果
-                _lblInspectionSuccessValue.Text = result.Success ? "OK ✓" : "NG ✗";
-                _lblInspectionSuccessValue.ForeColor = result.Success ? AccentGreen : AlarmError;
+                _lblInspectionSuccessValue.Text = result.IsSuccess ? "OK ✓" : "NG ✗";
+                _lblInspectionSuccessValue.ForeColor = result.IsSuccess ? AccentGreen : AlarmError;
 
-                _lblBarcodeResultValue.Text = result.Barcode ?? "N/A";
+                _lblBarcodeResultValue.Text = result.BarcodeText ?? "N/A";
                 _lblConfidenceValue.Text = $"{result.Confidence:F1}%";
                 
-                if (result.MarkPositions != null && result.MarkPositions.Length > 0)
+                if (result.MarkPositions != null && result.MarkPositions.Count > 0)
                 {
                     var pos = result.MarkPositions[0];
                     _lblMarkPositionsValue.Text = $"({pos.X:F2}, {pos.Y:F2})";
@@ -537,24 +544,15 @@ namespace _927
         }
 
         /// <summary>
-        /// 將 Avl.Image 轉換為 Bitmap
+        /// 將影像資料 (byte[]) 轉換為 Bitmap
         /// </summary>
-        private Bitmap ConvertAvlImageToBitmap(Avl.Image avlImage)
+        private Bitmap ConvertImageDataToBitmap(byte[] imageData)
         {
-            if (avlImage == null) return null;
+            if (imageData == null || imageData.Length == 0) return null;
 
-            // 假設 Avl.Image 有 ToBitmap() 方法或類似 API
-            // 實際實現需根據 Avl.Image 的具體結構調整
             try
             {
-                // 嘗試直接轉換 (如果 Avl.Image 支援)
-                if (avlImage is Bitmap bmp)
-                    return bmp;
-
-                // 或使用 MemoryStream 轉換
-                using var ms = new MemoryStream();
-                avlImage.Save(ms); // 假設有 Save 方法
-                ms.Position = 0;
+                using var ms = new MemoryStream(imageData);
                 return new Bitmap(ms);
             }
             catch

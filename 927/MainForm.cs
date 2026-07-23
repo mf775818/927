@@ -61,7 +61,7 @@ namespace _927
         
         // 視覺系統狀態
         private VisionSystemMode _visionSystemMode = VisionSystemMode.Simulation;
-        private Avl.Image? _lastCapturedImage;
+        private byte[]? _lastCapturedImage;
         private VisionInspectionResult? _lastInspectionResult;
         private bool _isContinuousCaptureRunning = false;
         private CancellationTokenSource? _continuousCaptureCts;
